@@ -5,12 +5,12 @@
 //
 #include <map>
 #include "cSymbol.h"
-// NOTE: The following typedef will have to be replaced by something meaningful
+#include <stack>
+
 struct symbolTable_t
 {
-    
-}
-;
+    map<string, cSymbol> symbols;        
+};
 
 class cSymbolTable
 {
@@ -44,6 +44,9 @@ class cSymbolTable
         // NOTE: This ONLY searches the inner-most scope.
         // Returns nullptr if the symbol is not found.
         cSymbol *FindLocal(string name);
+
+    private:
+        stack<symbolTable_t*> tables;
 };
 
 // declare the global symbol table. The definition will have to be in a cpp file

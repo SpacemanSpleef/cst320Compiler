@@ -21,7 +21,7 @@ symbolTable_t* cSymbolTable::DecreaseScope()
 void cSymbolTable::Insert(cSymbol * sym)
 {
     symbolTable_t* outerScope = tables.top();
-    *outerScope.symbols.insert(std::pair<string, cSymbol*>(*sym.GetName(), sym));
+    &outerScope.symbols.insert(std::pair<string, cSymbol*>(sym->GetName(), sym));
 
     return;
 }

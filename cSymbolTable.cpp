@@ -21,15 +21,35 @@ symbolTable_t* cSymbolTable::DecreaseScope()
 void cSymbolTable::Insert(cSymbol * sym)
 {
     symbolTable_t* outerScope = tables.top();
-    outerScope->symbols.insert(std::pair<string, cSymbol*>(sym->GetName(), *sym));
+    outerScope->symbols.insert(std::pair<string, cSymbol>(sym->GetName(), *sym));
 
     return;
 }
 
 cSymbol* cSymbolTable::Find(string name)
 {
-    
-    return nullptr;
+    cSymbol* sym = nullptr;
+    std::stack<symbolTable_t*> backup;
+    while(sym == nullptr && !tables.empty())
+    {
+        symbolTable_t* curScope = tables.top();
+        try
+        {
+            sym = &curScope->symbols.at(name);
+        }
+        catch(std::out_of_range &e)
+        {
+            sym = nullptr;
+            tables.pop();
+            backup.push(curScope);
+        }
+    }
+    while(!backup.empty())
+    {
+        tables.push(backup.top());
+        backup.pop();
+    }
+    return sym;
 }
 
 cSymbol* cSymbolTable::FindLocal(string name)
@@ -43,7 +63,7 @@ cSymbol* cSymbolTable::FindLocal(string name)
     catch(std::out_of_range &e)
     {
         sym = nullptr;
-        std::cout<< e.what() << std::endl;
+   
     }
     //tables.push(scope);
     return sym;

@@ -1,4 +1,5 @@
 #include "cSymbolTable.h"
+#include <iostream>
 
 cSymbolTable::cSymbolTable()
 {
@@ -13,14 +14,15 @@ symbolTable_t* cSymbolTable::IncreaseScope()
 
 symbolTable_t* cSymbolTable::DecreaseScope()
 {
-    symbolTable_t* outerMostScope = tables.pop();
+    symbolTable_t* outerMostScope = tables.top();
+    tables.pop();
     return outerMostScope;
 }
 void cSymbolTable::Insert(cSymbol * sym)
 {
-    symbolTable_t* outerScope = tables.pop();
-    outerScope.symbols.insert(std::pair<string, cSymbol>(sym.GetName, sym));
-    tables.push(outerScope);
+    symbolTable_t* outerScope = tables.top();
+    outerScope->symbols.insert(std::pair<string, cSymbol*>(sym->GetName(), sym));
+
     return;
 }
 
@@ -32,17 +34,17 @@ cSymbol* cSymbolTable::Find(string name)
 
 cSymbol* cSymbolTable::FindLocal(string name)
 {
-    symbolTable_t* scope = tables.pop();
+    symbolTable_t* scope = tables.top();
     cSymbol* sym = nullptr;
     try
     {
-        sym = scope.symbols.at(name);
+        sym = &scope->symbols.at(name);
     }
-    catch(std::exception e)
+    catch(std::out_of_range &e)
     {
         sym = nullptr;
-        std::cout<< e.What() << std::endl;
+        std::cout<< e.what() << std::endl;
     }
-    tables.push(scope);
+    //tables.push(scope);
     return sym;
 }

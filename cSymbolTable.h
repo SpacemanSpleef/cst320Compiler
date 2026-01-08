@@ -3,9 +3,14 @@
 // You are not required to use any of these names, but you will need the 
 // described functionality
 //
-
+#include <map>
+#include "cSymbol.h"
 // NOTE: The following typedef will have to be replaced by something meaningful
-typedef void symbolTable_t;
+struct symbolTable_t
+{
+    
+}
+;
 
 class cSymbolTable
 {

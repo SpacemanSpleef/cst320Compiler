@@ -30,7 +30,7 @@ static int ProcessID(char * identifier);
 %option yylineno
 
     /* definitions go here. whitespace is an example. */
-whitespace      '[\t\n\r" "]'
+whitespace      '[\t\n\r" " ]'
 digit           [0-9]
 alphabet        [a-z]
 

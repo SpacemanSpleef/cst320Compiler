@@ -23,6 +23,7 @@ clean:
 	rm -f lang
 	rm -f out.xml
 	rm -f out2.xml
+	rm -f out
 
 .c.o:
 	g++ $(COPTS) $? -o $@

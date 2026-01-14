@@ -31,6 +31,7 @@ class cSymbol
 
         // Return name of symbol
         string GetName() { return m_name; }
+        long long GetId(){ return m_id; }
     protected:
         static long long nextId;    // keeps track of unique symbol IDs
         long long m_id;             // Unique ID for this symbol

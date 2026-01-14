@@ -54,6 +54,7 @@ cSymbol* cSymbolTable::Find(string name)
 
 cSymbol* cSymbolTable::FindLocal(string name)
 {
+
     symbolTable_t* scope = tables.top();
     cSymbol* sym = nullptr;
     try

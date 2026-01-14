@@ -42,10 +42,10 @@ int main(int argc, char **argv)
 
     std::cout << "Theodore Gwynn" << std::endl;
 
+
     // open input
     if (argc > 1)
-    {
-        yyin = fopen(argv[1], "r");
+    {   yyin = fopen(argv[1], "r");
         if (yyin == NULL)
         {
             std::cerr << "Unable to open file " << argv[1] << "\n";
@@ -70,19 +70,21 @@ int main(int argc, char **argv)
             exit(-2);
         }
     }
-    if(argc > 3) do_test2 = 1;
 
-
+    if(argc > 3)
+    { 
+        do_test2 = 1;
+    }
 
     token = yylex();
     while (token != 0)
     {
-        #ifdef TEST2
+                #ifdef TEST2
         if (do_test2 && token == IDENTIFIER)
             printf("%d:%s:%lld\n", token, yytext, yylval.symbol->GetId());
         else
             printf("%d:%s\n", token, yytext);
-#else
+        #else
         if (do_test2)
         {
             fprintf(stderr, "Not compiled with TEST2 defined\n");
@@ -90,65 +92,9 @@ int main(int argc, char **argv)
         }
         else
             printf("%d:%s\n", token, yytext);
-#endif
+        #endif
 
         token = yylex();
     }
-
-    //return result;
-
-        // if we found an identifier, print it out
-        //if (token == IDENTIFIER) 
-        //{
-            //cSymbol *sym;
-            //if (!g_insert)
-            //{
-          //      if (g_local)
-        //            sym = g_symbolTable.FindLocal(yylval.symbol->GetName());
-      //          else
-    //                sym = g_symbolTable.Find(yylval.symbol->GetName());
-//
-  //              if (sym != nullptr) yylval.symbol = sym;
-           // }
-
-            // this will either be the one found above or the one created
-            // in the scanner.
-          //  std::cout << yylval.symbol->ToString() << "\n";
-        //}
-        //else if (token == LOCAL)
-        //{
-           // std::cout << "<local />\n";
-          //  g_local = 1;
-        //}
-        //else if (token == GLOBAL)
-        //{
-           // std::cout << "<global />\n";
-          //  g_local = 0;
-        //}
-        //else if (token == LOOKUP)
-        //{
-           // std::cout << "<lookup />\n";
-          //  g_insert = 0;
-        //}
-        //else if (token == INSERT)
-        //{
-            //std::cout << "<insert />\n";
-          //  g_insert = 1;
-        //}
-        //else if (token == OPEN)
-        //{
-           // std::cout << "<open />\n";
-          //  g_symbolTable.IncreaseScope();
-        //}
-        //else if (token == CLOSE)
-        //{
-            //std::cout << "<close />\n";
-          //  g_symbolTable.DecreaseScope();
-        //}
-      //  token = yylex();
-    //}
-
-    //std::cout << "</program>\n";
-
     return result;
 }

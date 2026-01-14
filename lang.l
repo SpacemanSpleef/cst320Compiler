@@ -18,14 +18,7 @@
 
 // Macros that can be used to create debug output from the scanner
 // Uncomment the next line of code to generate debug output.
-// Note: for this to work, use DO_RETURN(val) for all the return statements
-//       for your tokens. See sample below for "program"
-//#define DEBUG_OUTPUT
-#ifdef DEBUG_OUTPUT
-    #define DO_RETURN(a) { return Return(a); }
-#else
-    #define DO_RETURN(a) { return (a); }
-#endif
+
 
 int Return(int val);
 static int ProcessID();
@@ -38,24 +31,56 @@ static int ProcessID();
 
     /* definitions go here. whitespace is an example. */
 whitespace      '[\t\n\r ]'
-letters         [a-z]
+digit           [0-9]
+alphabet        [a-z]
+
 %%
 {whitespace}+               {} /* Ignore whitespace */
-;                           {} /* Ignore semicolons */
-    /* control scope with curly braces
-     NOTE: This functionality will eventually move to the parser
-    */
-PROGRAM                   DO_RETURN(PROGRAM);
-"{"                         DO_RETURN(OPEN);
-"}"                         DO_RETURN(CLOSE);
-LOCAL                       DO_RETURN(LOCAL);
-GLOBAL                      DO_RETURN(GLOBAL);
-LOOKUP                      DO_RETURN(LOOKUP);
-INSERT                      DO_RETURN(INSERT);
-[a-z]+                      {
-                                DO_RETURN(ProcessID());
-                            }
+;                          {} /* Ignore semicolons */
+program   return PROGRAM;
+if return IF;
+else return ELSE;
+endif return ENDIF;
+while return WHILE;
+print return PRINT;
+prints return PRINTS;
+char return CHAR;
+int return INT;
+long return LONG;
+float return FLOAT;
+double return DOUBLE;
+struct return STRUCT;
+array return ARRAY;
+return return RETURN;
 
+"!=" return NOT_EQUALS;
+"==" return EQUALS;
+"&&" return AND;
+"||" return OR;
+">=" return GE;
+"<=" return LE;
+
+[1-9][0-9]+ | [0-9]  return INT_VAL;
+[A-Za-z_]+ return IDENTIFIER;
+[1-9]*[0-9].[0-9]*[1-9] return FLOAT_VAL; 
+
+"(" return '(';
+")" return ')';
+"{" return '{';
+"}" return '}';
+"[" return '[';
+"]" return ']';
+";" return ';';
+"," return ',';
+"." return '.';
+"+" return '+';
+"-" return '-';
+"*" return '*';
+"/" return '/';
+"%" return '%';
+"=" return '=';
+">" return '>';
+"<" return '<';
 %%
 
 //******************************************************
@@ -81,6 +106,7 @@ static int ProcessID()
     yylval.symbol = sym;
 
     return IDENTIFIER;
+   
 }
 
 // This function allows us to do extra processing on each token

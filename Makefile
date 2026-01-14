@@ -9,7 +9,7 @@
 # Date: Jan. 12, 2016
 #
 
-COPTS=-Wall -g -c -O0 -std=c++11
+COPTS=-Wall -g -c -O0 -std=c++11 
 OBJS=main.o \
 	 langlex.o \
 	 cSymbolTable.o

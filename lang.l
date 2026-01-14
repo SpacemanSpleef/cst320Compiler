@@ -21,7 +21,7 @@
 
 
 int Return(int val);
-static int ProcessID();
+static int ProcessID(char * identifier);
 %}
 
 %option noyywrap
@@ -30,13 +30,14 @@ static int ProcessID();
 %option yylineno
 
     /* definitions go here. whitespace is an example. */
-whitespace      '[\t\n\r ]'
+whitespace      '[\t\n\r" "]'
 digit           [0-9]
 alphabet        [a-z]
 
 %%
 {whitespace}+               {} /* Ignore whitespace */
-;                          {} /* Ignore semicolons */
+"//".*$ {} /*Ignore comments*/
+
 program   return PROGRAM;
 if return IF;
 else return ELSE;
@@ -60,14 +61,18 @@ return return RETURN;
 ">=" return GE;
 "<=" return LE;
 
-[1-9][0-9]+ | [0-9]  return INT_VAL;
-[A-Za-z_]+ return IDENTIFIER;
-[1-9]*[0-9].[0-9]*[1-9] return FLOAT_VAL; 
-
 "(" return '(';
 ")" return ')';
-"{" return '{';
-"}" return '}';
+"{" {
+    g_symbolTable.IncreaseScope();
+    return '{';
+    }
+
+"}" { 
+    g_symbolTable.DecreaseScope();
+    return '}';
+    }
+
 "[" return '[';
 "]" return ']';
 ";" return ';';
@@ -81,13 +86,19 @@ return return RETURN;
 "=" return '=';
 ">" return '>';
 "<" return '<';
+
+[1-9]*[0-9]+  return INT_VAL;
+[A-Za-z_]+  return ProcessID(yytext);
+[1-9]*[0-9].[0-9]*[1-9] return FLOAT_VAL;
+
+[:@#$] return JUNK_TOKEN;
 %%
 
 //******************************************************
 // ProcessID: create symbols in symbol table
-static int ProcessID()
+static int ProcessID(char * inputIdentifier)
 {
-    string name(yytext);
+    string name(inputIdentifier);
     cSymbol *sym;
 
     if (g_insert)
@@ -99,7 +110,7 @@ static int ProcessID()
             g_symbolTable.Insert(sym);
         }
     }
-    else
+else
     {
         sym = new cSymbol(name);
     }

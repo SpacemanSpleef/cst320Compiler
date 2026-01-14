@@ -21,9 +21,10 @@
 
 // Uncomment the following line after integrating your symbol table with
 // your scanner.
-//#define TEST2
+#define TEST2
 
 cSymbolTable g_symbolTable;
+
 long long cSymbol::nextId = 0;
 yylval_t yylval;
 int g_insert = 1;           // global to indicate that symbols should be 
@@ -79,8 +80,8 @@ int main(int argc, char **argv)
     token = yylex();
     while (token != 0)
     {
-                #ifdef TEST2
-        if (do_test2 && token == IDENTIFIER)
+        #ifdef TEST2
+        if ((do_test2) && (token == IDENTIFIER))
             printf("%d:%s:%lld\n", token, yytext, yylval.symbol->GetId());
         else
             printf("%d:%s\n", token, yytext);

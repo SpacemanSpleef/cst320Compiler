@@ -16,6 +16,18 @@
 #include "lex.h"
 #include "tokens.h"
 
+// Macros that can be used to create debug output from the scanner
+// Uncomment the next line of code to generate debug output.
+// Note: for this to work, use DO_RETURN(val) for all the return statements
+//       for your tokens. See sample below for "program"
+//#define DEBUG_OUTPUT
+#ifdef DEBUG_OUTPUT
+    #define DO_RETURN(a) { return Return(a); }
+#else
+    #define DO_RETURN(a) { return (a); }
+#endif
+
+int Return(int val);
 static int ProcessID();
 %}
 
@@ -26,21 +38,22 @@ static int ProcessID();
 
     /* definitions go here. whitespace is an example. */
 whitespace      '[\t\n\r ]'
-
+letters         [a-z]
 %%
 {whitespace}+               {} /* Ignore whitespace */
 ;                           {} /* Ignore semicolons */
     /* control scope with curly braces
      NOTE: This functionality will eventually move to the parser
     */
-"{"                         return OPEN;
-"}"                         return CLOSE;
-LOCAL                       return LOCAL;
-GLOBAL                      return GLOBAL;
-LOOKUP                      return LOOKUP;
-INSERT                      return INSERT;
+PROGRAM                   DO_RETURN(PROGRAM);
+"{"                         DO_RETURN(OPEN);
+"}"                         DO_RETURN(CLOSE);
+LOCAL                       DO_RETURN(LOCAL);
+GLOBAL                      DO_RETURN(GLOBAL);
+LOOKUP                      DO_RETURN(LOOKUP);
+INSERT                      DO_RETURN(INSERT);
 [a-z]+                      {
-                                return ProcessID();
+                                DO_RETURN(ProcessID());
                             }
 
 %%
@@ -69,3 +82,12 @@ static int ProcessID()
 
     return IDENTIFIER;
 }
+
+// This function allows us to do extra processing on each token
+// It is used to generate lexer debug info
+int Return(int val)
+{
+    printf("Scanned '%s': %d\n", yytext, val);
+    return val;
+}
+

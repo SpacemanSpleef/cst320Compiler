@@ -19,6 +19,10 @@
 #include "lex.h"
 #include "tokens.h"
 
+// Uncomment the following line after integrating your symbol table with
+// your scanner.
+//#define TEST2
+
 cSymbolTable g_symbolTable;
 long long cSymbol::nextId = 0;
 yylval_t yylval;
@@ -34,6 +38,7 @@ int main(int argc, char **argv)
     const char *outfile_name;
     int result = 0;
     int token;
+    int do_test2 = 0;
 
     std::cout << "Theodore Gwynn" << std::endl;
 
@@ -65,64 +70,85 @@ int main(int argc, char **argv)
             exit(-2);
         }
     }
+    if(argc > 3) do_test2 = 1;
 
-    std::cout << "<program>\n";
+
 
     token = yylex();
     while (token != 0)
     {
-        // if we found an identifier, print it out
-        if (token == IDENTIFIER) 
+        #ifdef TEST2
+        if (do_test2 && token == IDENTIFIER)
+            printf("%d:%s:%lld\n", token, yytext, yylval.symbol->GetId());
+        else
+            printf("%d:%s\n", token, yytext);
+#else
+        if (do_test2)
         {
-            cSymbol *sym;
-            if (!g_insert)
-            {
-                if (g_local)
-                    sym = g_symbolTable.FindLocal(yylval.symbol->GetName());
-                else
-                    sym = g_symbolTable.Find(yylval.symbol->GetName());
+            fprintf(stderr, "Not compiled with TEST2 defined\n");
+            return 0;
+        }
+        else
+            printf("%d:%s\n", token, yytext);
+#endif
 
-                if (sym != nullptr) yylval.symbol = sym;
-            }
-
-            // this will either be the one found above or the one created
-            // in the scanner.
-            std::cout << yylval.symbol->ToString() << "\n";
-        }
-        else if (token == LOCAL)
-        {
-            std::cout << "<local />\n";
-            g_local = 1;
-        }
-        else if (token == GLOBAL)
-        {
-            std::cout << "<global />\n";
-            g_local = 0;
-        }
-        else if (token == LOOKUP)
-        {
-            std::cout << "<lookup />\n";
-            g_insert = 0;
-        }
-        else if (token == INSERT)
-        {
-            std::cout << "<insert />\n";
-            g_insert = 1;
-        }
-        else if (token == OPEN)
-        {
-            std::cout << "<open />\n";
-            g_symbolTable.IncreaseScope();
-        }
-        else if (token == CLOSE)
-        {
-            std::cout << "<close />\n";
-            g_symbolTable.DecreaseScope();
-        }
         token = yylex();
     }
 
-    std::cout << "</program>\n";
+    //return result;
+
+        // if we found an identifier, print it out
+        //if (token == IDENTIFIER) 
+        //{
+            //cSymbol *sym;
+            //if (!g_insert)
+            //{
+          //      if (g_local)
+        //            sym = g_symbolTable.FindLocal(yylval.symbol->GetName());
+      //          else
+    //                sym = g_symbolTable.Find(yylval.symbol->GetName());
+//
+  //              if (sym != nullptr) yylval.symbol = sym;
+           // }
+
+            // this will either be the one found above or the one created
+            // in the scanner.
+          //  std::cout << yylval.symbol->ToString() << "\n";
+        //}
+        //else if (token == LOCAL)
+        //{
+           // std::cout << "<local />\n";
+          //  g_local = 1;
+        //}
+        //else if (token == GLOBAL)
+        //{
+           // std::cout << "<global />\n";
+          //  g_local = 0;
+        //}
+        //else if (token == LOOKUP)
+        //{
+           // std::cout << "<lookup />\n";
+          //  g_insert = 0;
+        //}
+        //else if (token == INSERT)
+        //{
+            //std::cout << "<insert />\n";
+          //  g_insert = 1;
+        //}
+        //else if (token == OPEN)
+        //{
+           // std::cout << "<open />\n";
+          //  g_symbolTable.IncreaseScope();
+        //}
+        //else if (token == CLOSE)
+        //{
+            //std::cout << "<close />\n";
+          //  g_symbolTable.DecreaseScope();
+        //}
+      //  token = yylex();
+    //}
+
+    //std::cout << "</program>\n";
 
     return result;
 }

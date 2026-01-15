@@ -90,6 +90,7 @@ return return RETURN;
 [1-9]*[0-9]+  return INT_VAL;
 [A-Za-z_]+  return ProcessIdentifier(yytext);
 [1-9]*[0-9].[0-9]*[1-9] return FLOAT_VAL;
+\"[^\"]*\"  return STRING_LIT;
 
 [:@#$] return JUNK_TOKEN;
 %%

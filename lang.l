@@ -21,7 +21,7 @@
 
 
 int Return(int val);
-static int ProcessID(char * identifier);
+static int ProcessIdentifier(char * identifier);
 %}
 
 %option noyywrap
@@ -88,15 +88,15 @@ return return RETURN;
 "<" return '<';
 
 [1-9]*[0-9]+  return INT_VAL;
-[A-Za-z_]+  return ProcessID(yytext);
+[A-Za-z_]+  return ProcessIdentifier(yytext);
 [1-9]*[0-9].[0-9]*[1-9] return FLOAT_VAL;
 
 [:@#$] return JUNK_TOKEN;
 %%
 
 //******************************************************
-// ProcessID: create symbols in symbol table
-static int ProcessID(char * inputIdentifier)
+// ProcessIdentifier: create symbols in symbol table
+static int ProcessIdentifier(char * inputIdentifier)
 {
     string name(inputIdentifier);
     cSymbol *sym;

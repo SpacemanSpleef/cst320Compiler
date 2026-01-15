@@ -30,13 +30,13 @@ static int ProcessIdentifier(char * identifier);
 %option yylineno
 
     /* definitions go here. whitespace is an example. */
-whitespace      '[\t\n\r" " ]'
+whitespace      [\t\n\r" " ]
 digit           [0-9]
 alphabet        [a-z]
 
 %%
-{whitespace}+               {} /* Ignore whitespace */
-"//".*$ {} /*Ignore comments*/
+{whitespace}+               {/* Ignore whitespace */}
+"//".*$                     {}/*Ignore comments*/
 
 program   return PROGRAM;
 if return IF;

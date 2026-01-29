@@ -149,7 +149,10 @@ paramspec:  var_decl
                                     {  }
 
 stmts:      stmts stmt
-                                {  }
+                                { 
+                                    $$ = $1;
+                                    $$->Insert($2);
+                                }
         |   stmt
                             { $$ = new cStmtsNode($1); }
 

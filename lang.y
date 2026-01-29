@@ -1,3 +1,16 @@
+%code requires {
+    class cAstNode;
+    class cProgramNode;
+    class cBlockNode;
+    class cStmtsNode;
+    class cPrintNode;
+    class cExprNode;
+    class cIntExprNode;
+    class cFloatExprNode;
+    class cSymbol;
+    class cBinaryExprNode;
+}
+
 %{
 //**************************************
 // lang.y
@@ -16,9 +29,10 @@
 
 %locations
 
- /* union defines the type for lexical values */
+/* union defines the type for lexical values */
 %union{
     int             int_val;
+    float           float_val;
     std::string*    str_val;
     cAstNode*       ast_node;
     cProgramNode*   program_node;
@@ -28,6 +42,8 @@
     cExprNode*      expr_node;
     cIntExprNode*   int_node;
     cSymbol*        symbol;
+    cFloatExprNode* float_node;
+    int             char_val;
     }
 
 %{
@@ -209,31 +225,40 @@ expr:       expr EQUALS addit
                             { $$ = $1; }
 
 addit:      addit '+' term
-                                {  }
+                                { 
+                                  $$ = new cBinaryExprNode($1, '+', $3);  
+                                }
         |   addit '-' term
-                            {  }
+                            {  $$ = new cBinaryExprNode($1, '-', $3); }
         |   term
-                            {  }
+                            { $$ = $1; }
 
 term:       term '*' fact
-                                {  }
+                                { 
+                                   $$ = new cBinaryExprNode($1, '*', $3);  
+
+                                }
         |   term '/' fact
-                            {  }
+                            { 
+                               $$ = new cBinaryExprNode($1, '/', $3);  
+                            }
         |   term '%' fact
-                            {  }
+                            { 
+                                $$ = new cBinaryExprNode($1, '%', $3);  
+                            }
         |   fact
-                            {  }
+                            { $$ = $1; }
 
 fact:       '(' expr ')'
-                                {  }
+                                { $$ = $2;}
         |   INT_VAL
                             { $$ = new cIntExprNode($1); }
         |   FLOAT_VAL
-                            {  }
+                            { $$ = new cFloatExprNode($1); }
         |   varref
-                            {  }
+                            {  $$ = dynamic_cast<cExprNode*>($1);}
         |   func_call
-                            {  }
+                            { $$ = dynamic_cast<cExprNode*>($1); }
 
 %%
 

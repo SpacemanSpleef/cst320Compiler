@@ -30,10 +30,13 @@ int Return(int val);
 %%
 
     // token definitions. I gave "program" as an example
+[ \t\r\n]+    ;
 program                     DO_RETURN(PROGRAM);
 print                       DO_RETURN(PRINT);
+[0-9]+\.[0-9]+              { yylval.float_val = atof(yytext); DO_RETURN(FLOAT_VAL); }
 [0-9]+                      {yylval.int_val = atoi(yytext); DO_RETURN(INT_VAL);}
-[{};()]                     DO_RETURN(yytext[0]);
+
+[{};()*+/-]                 DO_RETURN(yytext[0]);
 
 %%
 

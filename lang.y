@@ -10,6 +10,7 @@
 #include <iostream>
 #include "lex.h"
 #include "astnodes.h"
+//#include "cSymbolTable.h"
 
 %}
 
@@ -100,10 +101,10 @@ block:  open decls stmts close
                                 { $$ = new cBlockNode(nullptr, $2); }
 
 open:   '{'
-                                { /* $$ = g_SymbolTable.IncreaseScope(); */ }
+                                {  /*$$ = g_symbolTable.IncreaseScope();*/ }
 
 close:  '}'
-                                { /* $$ = g_SymbolTable.DecreaseScope(); */ }
+                                { /*$$ = g_symbolTable.DecreaseScope(); */}
 
 decls:      decls decl
                                 {  }

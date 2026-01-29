@@ -2,26 +2,23 @@
 //**************************************
 // lang.l
 //
-// Scanner definition file
+// scanner definition file. flex uses this file to create the scanner
 //
-// Author: Phil Howard 
-// phil.howard@oit.edu
+// Author: Theodore Gwynn
 //
 
-// Illustration showing how to use {} to control scope
-// NOTE: this is pseudo-code illustrating how you can adapt your current lang.l
-
-#include "cSymbol.h"
-#include "cSymbolTable.h"
 #include "lex.h"
-#include "tokens.h"
+#include "langparse.h"
 
 // Macros that can be used to create debug output from the scanner
-// Uncomment the next line of code to generate debug output.
-
+// The first one does NOT create debug output, the second does.
+// Uncomment one or the other then use DO_RETURN(val) for all your return 
+// statements
+#define DO_RETURN(a) { return (a); }
+//#define DO_RETURN(a) { return Return(a); }
 
 int Return(int val);
-static int ProcessIdentifier(char * identifier);
+
 %}
 
 %option noyywrap
@@ -29,97 +26,16 @@ static int ProcessIdentifier(char * identifier);
 %option nounput
 %option yylineno
 
-    /* definitions go here. whitespace is an example. */
-whitespace      [\t\n\r" " ]
-digit           [0-9]
-alphabet        [a-z]
 
 %%
-{whitespace}+               {/* Ignore whitespace */}
-"//".*$                     {}/*Ignore comments*/
 
-program   return PROGRAM;
-if return IF;
-else return ELSE;
-endif return ENDIF;
-while return WHILE;
-print return PRINT;
-prints return PRINTS;
-char return CHAR;
-int return INT;
-long return LONG;
-float return FLOAT;
-double return DOUBLE;
-struct return STRUCT;
-array return ARRAY;
-return return RETURN;
+    // token definitions. I gave "program" as an example
+program                     DO_RETURN(PROGRAM);
+print                       DO_RETURN(PRINT);
+[0-9]+                      {yylval.int_val = atoi(yytext); DO_RETURN(INT_VAL);}
+[{};()]                     DO_RETURN(yytext[0]);
 
-"!=" return NOT_EQUALS;
-"==" return EQUALS;
-"&&" return AND;
-"||" return OR;
-">=" return GE;
-"<=" return LE;
-
-"(" return '(';
-")" return ')';
-"{" {
-    g_symbolTable.IncreaseScope();
-    return '{';
-    }
-
-"}" { 
-    g_symbolTable.DecreaseScope();
-    return '}';
-    }
-
-"[" return '[';
-"]" return ']';
-";" return ';';
-"," return ',';
-"." return '.';
-"+" return '+';
-"-" return '-';
-"*" return '*';
-"/" return '/';
-"%" return '%';
-"=" return '=';
-">" return '>';
-"<" return '<';
-
-[1-9]*[0-9]+  return INT_VAL;
-[A-Za-z_]+  return ProcessIdentifier(yytext);
-[1-9]*[0-9].[0-9]*[1-9] return FLOAT_VAL;
-\"[^\"]*\"  return STRING_LIT;
-
-[:@#$] return JUNK_TOKEN;
 %%
-
-//******************************************************
-// ProcessIdentifier: create symbols in symbol table
-static int ProcessIdentifier(char * inputIdentifier)
-{
-    string name(inputIdentifier);
-    cSymbol *sym;
-
-    if (g_insert)
-    {
-        sym = g_symbolTable.FindLocal(name);
-        if (sym == nullptr)
-        {
-            sym = new cSymbol(name);
-            g_symbolTable.Insert(sym);
-        }
-    }
-    else
-    {
-        sym = new cSymbol(name);
-    }
-    yylval.symbol = sym;
-
-    return IDENTIFIER;
-   
-}
 
 // This function allows us to do extra processing on each token
 // It is used to generate lexer debug info
@@ -128,4 +44,3 @@ int Return(int val)
     printf("Scanned '%s': %d\n", yytext, val);
     return val;
 }
-

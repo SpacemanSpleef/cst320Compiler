@@ -1,39 +1,42 @@
 #pragma once
-//********************************************************
-// cSymbol.h - Define a class for symbols
+//**************************************
+// cSymbol.h
 //
-// Author: Philip Howard
+// Defines class used to represent symbols.
+// Later labs will add features to this class.
 //
-#include <string>
+// Author: Phil Howard 
+// phil.howard@oit.edu
+//
 
+#include <string>
+#include "cAstNode.h"
 using std::string;
 
-class cSymbol
+class cSymbol : public cAstNode
 {
     public:
-        // Construct a symbol given its name
-        cSymbol(string name)
+        // param is name of symbol
+        cSymbol(string name) : cAstNode()
         {
-            m_id = ++nextId;
+            m_id = ++nextId;        // get next available ID
             m_name = name;
         }
 
-        // Return a string representation of a symbol
-        // Return value is an XML node
-        string ToString()
-        {
-            string result("<sym id=\"");
-            result += std::to_string(m_id);
-            result += "\" name=\"" + m_name + "\" />";
+        // return name of symbol
+        string GetName() { return m_name; }
 
+        virtual string AttributesToString()
+        {
+            string result(" id=\"");
+            result += std::to_string(m_id);
+            result += "\" name=\"" + m_name + "\"";
             return result;
         }
-
-        // Return name of symbol
-        string GetName() { return m_name; }
-        long long GetId() { return m_id; }
+        virtual string NodeType() { return string("sym"); }
+        virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
     protected:
-        static long long nextId;    // keeps track of unique symbol IDs
-        long long m_id;             // Unique ID for this symbol
-        string m_name;              // Symbol name
+        static long long nextId;        // Next avail symbol ID
+        long long m_id;                 // Unique ID for this symbol
+        string m_name;                  // name of symbol
 };

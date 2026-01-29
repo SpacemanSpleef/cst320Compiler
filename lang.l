@@ -111,7 +111,7 @@ static int ProcessIdentifier(char * inputIdentifier)
             g_symbolTable.Insert(sym);
         }
     }
-else
+    else
     {
         sym = new cSymbol(name);
     }

@@ -11,18 +11,23 @@
 #include <unistd.h>
 #include <iostream>
 #include <fstream>
-//#include "cSymbolTable.h"
+#include "cSymbolTable.h"
 #include "lex.h"
 #include "astnodes.h"
 #include "langparse.h"
 
 // define global variables
-//cSymbolTable g_SymbolTable;
+cSymbolTable g_symbolTable;
 long long cSymbol::nextId;
 
 // takes two string args: input_file, and output_file
 int main(int argc, char **argv)
 {
+    g_symbolTable.Insert(new cSymbol("char"));   // ID 1
+    g_symbolTable.Insert(new cSymbol("int"));    // ID 2
+    g_symbolTable.Insert(new cSymbol("float"));  // ID 3
+    g_symbolTable.Insert(new cSymbol("long")); // ID 4
+    g_symbolTable.Insert(new cSymbol("double"));   // ID 5
     std::cout << "Theodore Gwynn" << std::endl;
 
     const char *outfile_name;

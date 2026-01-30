@@ -9,6 +9,8 @@
     class cFloatExprNode;
     class cSymbol;
     class cBinaryExprNode;
+    class cVarDeclNode;
+    class cVarRefNode;
 }
 
 %{
@@ -44,6 +46,9 @@
     cSymbol*        symbol;
     cFloatExprNode* float_node;
     int             char_val;
+    cDeclNode*      decl_node;
+    cDeclsNode*     decls_node;
+
     }
 
 %{
@@ -78,12 +83,12 @@
 %type <block_node> block
 %type <ast_node> open
 %type <ast_node> close
-%type <ast_node> decls
-%type <ast_node> decl
-%type <ast_node> var_decl
-%type <ast_node> struct_decl
-%type <ast_node> array_decl
-%type <ast_node> func_decl
+%type <decls_node> decls
+%type <decl_node> decl
+%type <decl_node> var_decl
+%type <decl_node> struct_decl
+%type <decl_node> array_decl
+%type <decl_node> func_decl
 %type <ast_node> func_header
 %type <ast_node> func_prefix
 %type <ast_node> func_call
@@ -112,7 +117,9 @@ program: PROGRAM block
                                       YYABORT;
                                 }
 block:  open decls stmts close
-                                {  }
+                                { 
+                                    $$ = new cBlockNode($2, $3);
+                                }
     |   open stmts close
                                 { $$ = new cBlockNode(nullptr, $2); }
 
@@ -123,9 +130,12 @@ close:  '}'
                                 { /*$$ = g_symbolTable.DecreaseScope(); */}
 
 decls:      decls decl
-                                {  }
+                                { 
+                                    $$ = $1;
+                                    $$->Insert($2);
+                                 }
         |   decl
-                                {  }
+                                { $$ = new cDeclsNode($1); }
 decl:       var_decl ';'
                                 { $$ = $1; }
         |   array_decl ';'
@@ -138,7 +148,7 @@ decl:       var_decl ';'
                             {  }
 
 var_decl:   TYPE_ID IDENTIFIER
-                                    {  }
+                                    { $$ = new cVarDeclNode($1, $2); }
 struct_decl:  STRUCT open decls close IDENTIFIER
                                 {  }
 array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
@@ -203,10 +213,10 @@ varref:   varref '.' varpart
         | varref '[' expr ']'
                             {  }
         | varpart
-                            {  }
+                            { $$ = new cVarRefNode($1); }
 
 varpart:  IDENTIFIER
-                                {  }
+                                { $$ = $1;  }
 
 lval:     varref
                                 {  }

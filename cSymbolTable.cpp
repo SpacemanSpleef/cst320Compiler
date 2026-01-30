@@ -3,6 +3,8 @@
 
 cSymbolTable::cSymbolTable()
 {
+    this->IncreaseScope();
+    
 }
 
 symbolTable_t* cSymbolTable::IncreaseScope()
@@ -21,7 +23,7 @@ symbolTable_t* cSymbolTable::DecreaseScope()
 void cSymbolTable::Insert(cSymbol * sym)
 {
     symbolTable_t* outerScope = tables.top();
-    outerScope->symbols.insert(std::pair<string, cSymbol>(sym->GetName(), *sym));
+    outerScope->symbols.insert(std::pair<string, cSymbol*>(sym->GetName(), sym));
 
     return;
 }
@@ -35,7 +37,7 @@ cSymbol* cSymbolTable::Find(string name)
         symbolTable_t* curScope = tables.top();
         try
         {
-            sym = &curScope->symbols.at(name);
+            sym = curScope->symbols.at(name);
         }
         catch(std::out_of_range &e)
         {
@@ -59,7 +61,7 @@ cSymbol* cSymbolTable::FindLocal(string name)
     cSymbol* sym = nullptr;
     try
     {
-        sym = &scope->symbols.at(name);
+        sym = scope->symbols.at(name);
     }
     catch(std::out_of_range &e)
     {

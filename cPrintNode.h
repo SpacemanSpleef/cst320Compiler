@@ -25,5 +25,8 @@ class cPrintNode : public cStmtNode
         }
 
         virtual string NodeType() { return string("print"); }
-        virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
+        virtual void Visit(cVisitor *visitor) 
+        { 
+            visitor->Visit(this);         
+        }
 };

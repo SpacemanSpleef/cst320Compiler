@@ -10,7 +10,7 @@
 
 struct symbolTable_t
 {
-    std::map<string, cSymbol> symbols;        
+    std::map<string, cSymbol*> symbols;        
 };
 
 class cSymbolTable

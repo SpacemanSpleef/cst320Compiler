@@ -9,6 +9,8 @@
 
 #include "lex.h"
 #include "langparse.h"
+#include "cSymbol.h"
+#include "cSymbolTable.h"
 
 // Macros that can be used to create debug output from the scanner
 // The first one does NOT create debug output, the second does.
@@ -18,7 +20,7 @@
 //#define DO_RETURN(a) { return Return(a); }
 
 int Return(int val);
-
+int ProcessIdentifier( int type);
 %}
 
 %option noyywrap
@@ -33,10 +35,25 @@ int Return(int val);
 [ \t\r\n]+    ;
 program                     DO_RETURN(PROGRAM);
 print                       DO_RETURN(PRINT);
+
+char                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
+int                         {DO_RETURN(ProcessIdentifier(TYPE_ID));}
+float                       {DO_RETURN(ProcessIdentifier(TYPE_ID));}
+double                      {DO_RETURN(ProcessIdentifier(TYPE_ID));}
+long                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
+
 [0-9]+\.[0-9]+              { yylval.float_val = atof(yytext); DO_RETURN(FLOAT_VAL); }
 [0-9]+                      {yylval.int_val = atoi(yytext); DO_RETURN(INT_VAL);}
+[A-Za-z_][A-Za-z0-9_]*      { DO_RETURN(ProcessIdentifier(IDENTIFIER)); }
 
-[{};()*+/-]                 DO_RETURN(yytext[0]);
+"=="        DO_RETURN(EQUALS);
+"!="        DO_RETURN(NOT_EQUALS);
+"<="        DO_RETURN(LE);
+">="        DO_RETURN(GE);
+"&&"        DO_RETURN(AND);
+"||"        DO_RETURN(OR);
+
+[{};()*+/%=-]                 DO_RETURN(yytext[0]);
 
 %%
 
@@ -46,4 +63,18 @@ int Return(int val)
 {
     printf("Scanned '%s': %d\n", yytext, val);
     return val;
+}
+
+int ProcessIdentifier(int type)
+{
+    cSymbol *sym = g_symbolTable.Find(yytext);
+    
+    if (sym == nullptr) {
+        // If not found, THIS is the only place you should call 'new'
+        sym = new cSymbol(yytext);
+        g_symbolTable.Insert(sym);
+    }
+    
+    yylval.symbol = sym;
+    DO_RETURN(type);
 }

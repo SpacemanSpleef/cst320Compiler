@@ -20,6 +20,11 @@ class cIfStmtNode : public cStmtNode
             AddChild(expr);
             AddChild(stmts);
         }
-        virtual string NodeType() { return string("if"); }
+        cIfStmtNode(cExprNode *expr, cStmtsNode* stmts, cStmtsNode* elseStmts) : cStmtNode()
+        {
+            AddChild(expr);
+            AddChild(stmts);
+            AddChild(elseStmts);
+        }        virtual string NodeType() { return string("if"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
 };

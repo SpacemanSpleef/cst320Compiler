@@ -190,7 +190,7 @@ stmts:      stmts stmt
 stmt:       IF '(' expr ')' stmts ENDIF ';'
                                 { $$ = new cIfStmtNode($3, $5); }
         |   IF '(' expr ')' stmts ELSE stmts ENDIF ';'
-                                {  }
+                                { $$ = new cIfStmtNode($3, $5, $7); }
         |   WHILE '(' expr ')' stmt
                                 {  }
         |   PRINT '(' expr ')' ';'

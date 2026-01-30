@@ -155,7 +155,10 @@ decl:       var_decl ';'
                             {  }
 
 var_decl:   TYPE_ID IDENTIFIER
-                                    { $$ = new cVarDeclNode($1, $2); }
+                                    { 
+                                        g_symbolTable.Insert($2);
+                                        $$ = new cVarDeclNode($1, g_symbolTable.FindLocal($2->GetName())); 
+                                    }
 struct_decl:  STRUCT open decls close IDENTIFIER
                                 {  }
 array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER

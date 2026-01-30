@@ -22,8 +22,15 @@ symbolTable_t* cSymbolTable::DecreaseScope()
 }
 void cSymbolTable::Insert(cSymbol * sym)
 {
+    if(FindLocal(sym->GetName()) != nullptr)
+    {return;}
+
     symbolTable_t* outerScope = tables.top();
-    outerScope->symbols.insert(std::pair<string, cSymbol*>(sym->GetName(), sym));
+    cSymbol *symbolToInsert = sym;
+    if (Find(sym->GetName()) != nullptr) {
+        symbolToInsert = new cSymbol(sym->GetName());
+    }
+    outerScope->symbols.insert(std::pair<string, cSymbol*>(symbolToInsert->GetName(), symbolToInsert));
 
     return;
 }

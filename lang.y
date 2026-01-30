@@ -15,6 +15,7 @@
     class cIfStmtNode;
     class cReturnNode;
     class cWhileNode;
+    class cAssignmentNode;
 }
 
 %{
@@ -199,7 +200,7 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
         |   PRINTS '(' STRING_LIT ')' ';'
                                 { }
         |   lval '=' expr ';'
-                            {  }
+                            { $$ = new cAssignmentNode($1, $3); }
         |   func_call ';'
                             {  }
         |   block

@@ -40,6 +40,8 @@ endif                       DO_RETURN(ENDIF);
 return                      DO_RETURN(RETURN);
 else                        DO_RETURN(ELSE);
 while                       DO_RETURN(WHILE);
+struct                      DO_RETURN(STRUCT);
+array                       DO_RETURN(ARRAY);
 
 char                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
 int                         {DO_RETURN(ProcessIdentifier(TYPE_ID));}
@@ -58,7 +60,7 @@ long                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
 "&&"        DO_RETURN(AND);
 "||"        DO_RETURN(OR);
 
-[{};()*+/%=-]                 DO_RETURN(yytext[0]);
+[{};()*+/%="."-]                 DO_RETURN(yytext[0]);
 
 %%
 

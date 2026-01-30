@@ -16,6 +16,7 @@
     class cReturnNode;
     class cWhileNode;
     class cAssignmentNode;
+    class cStructDeclNode;
 }
 
 %{
@@ -33,7 +34,7 @@
 #include "cSymbolTable.h"
 
 %}
-
+%left '.' '['
 %locations
 
 /* union defines the type for lexical values */
@@ -45,7 +46,7 @@
     cProgramNode*   program_node;
     cBlockNode*     block_node;
     cStmtsNode*     stmts_node;
-    cStmtNode*     stmt_node;
+    cStmtNode*      stmt_node;
     cExprNode*      expr_node;
     cIntExprNode*   int_node;
     cSymbol*        symbol;
@@ -54,7 +55,7 @@
     cDeclNode*      decl_node;
     cDeclsNode*     decls_node;
     symbolTable_t*  sym_table;
-
+    cVarRefNode*    var_ref;
     }
 
 %{
@@ -109,7 +110,7 @@
 %type <expr_node> addit
 %type <expr_node> term
 %type <expr_node> fact
-%type <ast_node> varref
+%type <var_ref> varref
 %type <symbol> varpart
 
 %%
@@ -148,7 +149,7 @@ decl:       var_decl ';'
         |   array_decl ';'
                             {  }
         |   struct_decl ';'
-                            {  }
+                            { $$ = $1; }
         |   func_decl
                             {  }
         |   error ';'
@@ -159,8 +160,23 @@ var_decl:   TYPE_ID IDENTIFIER
                                         g_symbolTable.Insert($2);
                                         $$ = new cVarDeclNode($1, g_symbolTable.FindLocal($2->GetName())); 
                                     }
+            | IDENTIFIER IDENTIFIER 
+                                    { 
+                                        g_symbolTable.Insert($2);
+                                        cSymbol* varSym = g_symbolTable.FindLocal($2->GetName());
+                                        cSymbol* typeSym = g_symbolTable.Find($1->GetName());
+
+                                        if (typeSym != nullptr) 
+                                        {
+                                            varSym->SetType(typeSym); // Store this link inside the symbol
+                                        }
+                                        $$ = new cVarDeclNode($1, varSym);         
+                                    }
 struct_decl:  STRUCT open decls close IDENTIFIER
-                                {  }
+                                { 
+                                    g_symbolTable.Insert($5);
+                                    $$ = new cStructDeclNode(g_symbolTable.FindLocal($5->GetName()), $3); 
+                                }
 array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
                                 {  }
 
@@ -219,7 +235,10 @@ func_call:  IDENTIFIER '(' params ')'
                             {  }
 
 varref:   varref '.' varpart
-                                {  }
+                                {
+                                    $$ = $1;
+                                    $$->AddMember($3);
+                                }
         | varref '[' expr ']'
                             {  }
         | varpart
@@ -227,7 +246,8 @@ varref:   varref '.' varpart
 
 varpart:  IDENTIFIER
                                 { $$ = $1;  }
-
+        | TYPE_ID 
+            {$$ = $1; }
 lval:     varref
                                 { $$ = $1; }
 
@@ -276,7 +296,7 @@ fact:       '(' expr ')'
         |   FLOAT_VAL
                             { $$ = new cFloatExprNode($1); }
         |   varref
-                            {  $$ = static_cast<cExprNode*>($1);}
+                            {  $$ = $1;}
         |   func_call
                             { $$ = dynamic_cast<cExprNode*>($1); }
 

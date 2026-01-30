@@ -15,4 +15,5 @@ class cDeclNode : public cAstNode
 {
     public:
         cDeclNode() : cAstNode() {}
+        virtual cSymbol* GetSymbol() = 0;
 };

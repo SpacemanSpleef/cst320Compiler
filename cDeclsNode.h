@@ -28,4 +28,17 @@ class cDeclsNode : public cAstNode
 
         virtual string NodeType() { return string("decls"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
+        cSymbol* Find(string name) 
+        {
+            for (int i = 0; i < NumChildren(); i++) {
+                cDeclNode* decl = dynamic_cast<cDeclNode*>(GetChild(i));
+                
+                if (decl != nullptr) {
+                    if (decl->GetSymbol()->GetName() == name) {
+                        return decl->GetSymbol();
+                    }
+                }
+            }
+            return nullptr;
+        }
 };

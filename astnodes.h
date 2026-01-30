@@ -29,3 +29,4 @@
 #include "cVarRefNode.h"
 #include "cIfStmtNode.h"
 #include "cReturnNode.h"
+#include "cWhileNode.h"

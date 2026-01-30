@@ -39,6 +39,7 @@ if                          DO_RETURN(IF);
 endif                       DO_RETURN(ENDIF);
 return                      DO_RETURN(RETURN);
 else                        DO_RETURN(ELSE);
+while                       DO_RETURN(WHILE);
 
 char                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
 int                         {DO_RETURN(ProcessIdentifier(TYPE_ID));}

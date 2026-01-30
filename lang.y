@@ -14,6 +14,7 @@
     struct symbolTable_t;
     class cIfStmtNode;
     class cReturnNode;
+    class cWhileNode;
 }
 
 %{
@@ -192,7 +193,7 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
         |   IF '(' expr ')' stmts ELSE stmts ENDIF ';'
                                 { $$ = new cIfStmtNode($3, $5, $7); }
         |   WHILE '(' expr ')' stmt
-                                {  }
+                                { $$ = new cWhileNode($3, $5); }
         |   PRINT '(' expr ')' ';'
                                 { $$ = new cPrintNode($3); }
         |   PRINTS '(' STRING_LIT ')' ';'

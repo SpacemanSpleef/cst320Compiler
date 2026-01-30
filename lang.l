@@ -35,6 +35,9 @@ int ProcessIdentifier( int type);
 [ \t\r\n]+    ;
 program                     DO_RETURN(PROGRAM);
 print                       DO_RETURN(PRINT);
+if                          DO_RETURN(IF);
+endif                       DO_RETURN(ENDIF);
+return                      DO_RETURN(RETURN);
 
 char                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
 int                         {DO_RETURN(ProcessIdentifier(TYPE_ID));}

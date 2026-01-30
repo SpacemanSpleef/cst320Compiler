@@ -27,3 +27,5 @@
 #include "cBinaryExprNode.h"
 #include "cVarDeclNode.h"
 #include "cVarRefNode.h"
+#include "cIfStmtNode.h"
+#include "cReturnNode.h"

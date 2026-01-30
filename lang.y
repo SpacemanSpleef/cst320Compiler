@@ -11,6 +11,9 @@
     class cBinaryExprNode;
     class cVarDeclNode;
     class cVarRefNode;
+    struct symbolTable_t;
+    class cIfStmtNode;
+    class cReturnNode;
 }
 
 %{
@@ -25,7 +28,7 @@
 #include <iostream>
 #include "lex.h"
 #include "astnodes.h"
-//#include "cSymbolTable.h"
+#include "cSymbolTable.h"
 
 %}
 
@@ -40,7 +43,7 @@
     cProgramNode*   program_node;
     cBlockNode*     block_node;
     cStmtsNode*     stmts_node;
-    cPrintNode*     stmt_node;
+    cStmtNode*     stmt_node;
     cExprNode*      expr_node;
     cIntExprNode*   int_node;
     cSymbol*        symbol;
@@ -48,6 +51,7 @@
     int             char_val;
     cDeclNode*      decl_node;
     cDeclsNode*     decls_node;
+    symbolTable_t*  sym_table;
 
     }
 
@@ -81,8 +85,8 @@
 
 %type <program_node> program
 %type <block_node> block
-%type <ast_node> open
-%type <ast_node> close
+%type <sym_table> open
+%type <sym_table> close
 %type <decls_node> decls
 %type <decl_node> decl
 %type <decl_node> var_decl
@@ -109,7 +113,8 @@
 %%
 
 program: PROGRAM block
-                                { $$ = new cProgramNode($2);
+                                { 
+                                    $$ = new cProgramNode($2);
                                   yyast_root = $$;
                                   if (yynerrs == 0) 
                                       YYACCEPT;
@@ -124,10 +129,10 @@ block:  open decls stmts close
                                 { $$ = new cBlockNode(nullptr, $2); }
 
 open:   '{'
-                                {  /*$$ = g_symbolTable.IncreaseScope();*/ }
+                                {  $$ = g_symbolTable.IncreaseScope(); }
 
 close:  '}'
-                                { /*$$ = g_symbolTable.DecreaseScope(); */}
+                                { $$ = g_symbolTable.DecreaseScope(); }
 
 decls:      decls decl
                                 { 
@@ -183,7 +188,7 @@ stmts:      stmts stmt
                             { $$ = new cStmtsNode($1); }
 
 stmt:       IF '(' expr ')' stmts ENDIF ';'
-                                {  }
+                                { $$ = new cIfStmtNode($3, $5); }
         |   IF '(' expr ')' stmts ELSE stmts ENDIF ';'
                                 {  }
         |   WHILE '(' expr ')' stmt
@@ -199,7 +204,7 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
         |   block
                             {  }
         |   RETURN expr ';'
-                            {  }
+                            { $$ = new cReturnNode($2); }
         |   error ';'
                             {}
 
@@ -219,7 +224,7 @@ varpart:  IDENTIFIER
                                 { $$ = $1;  }
 
 lval:     varref
-                                {  }
+                                { $$ = $1; }
 
 params:   params ',' param
                                 {  }
@@ -266,7 +271,7 @@ fact:       '(' expr ')'
         |   FLOAT_VAL
                             { $$ = new cFloatExprNode($1); }
         |   varref
-                            {  $$ = dynamic_cast<cExprNode*>($1);}
+                            {  $$ = static_cast<cExprNode*>($1);}
         |   func_call
                             { $$ = dynamic_cast<cExprNode*>($1); }
 

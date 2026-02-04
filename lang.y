@@ -17,6 +17,9 @@
     class cWhileNode;
     class cAssignmentNode;
     class cStructDeclNode;
+    class cFuncDeclNode;
+    class cFuncCallNode;
+    class cParamsNode;
 }
 
 %{
@@ -56,6 +59,8 @@
     cDeclsNode*     decls_node;
     symbolTable_t*  sym_table;
     cVarRefNode*    var_ref;
+    cParamsNode*    param_ref;
+    cFuncDeclNode*  func_decl;
     }
 
 %{
@@ -95,16 +100,16 @@
 %type <decl_node> var_decl
 %type <decl_node> struct_decl
 %type <decl_node> array_decl
-%type <decl_node> func_decl
-%type <ast_node> func_header
-%type <ast_node> func_prefix
+%type <func_decl> func_decl
+%type <func_decl> func_header
+%type <func_decl> func_prefix
 %type <ast_node> func_call
-%type <ast_node> paramsspec
+%type <param_ref> paramsspec
 %type <ast_node> paramspec
 %type <stmts_node> stmts
 %type <stmt_node> stmt
 %type <ast_node> lval
-%type <ast_node> params
+%type <param_ref> params
 %type <ast_node> param
 %type <expr_node> expr
 %type <expr_node> addit
@@ -181,24 +186,45 @@ array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
                                 {  }
 
 func_decl:  func_header ';'
-                                {  }
+                                { 
+                                    g_symbolTable.DecreaseScope();
+                                    $$=$1;
+                                 }
         |   func_header  '{' decls stmts '}'
-                                {  }
+                                { 
+                                    cBlockNode* body = new cBlockNode($3, $4);
+                                    $1->AddBody(body);
+                                    g_symbolTable.DecreaseScope(); 
+                                    $$ = $1;    
+                                }
         |   func_header  '{' stmts '}'
-                                {  }
+                                { g_symbolTable.DecreaseScope(); }
 func_header: func_prefix paramsspec ')'
-                                {  }
+                                { 
+                                    $1->AddParams($2);
+                                    $$ = $1; 
+                                }
         |    func_prefix ')'
                             {  }
 func_prefix: TYPE_ID IDENTIFIER '('
-                                {  }
+                                { 
+                                    g_symbolTable.Insert($2);
+                                    cSymbol* funcSym = g_symbolTable.FindLocal($2->GetName());
+                                    g_symbolTable.IncreaseScope();
+                                    $$ = new cFuncDeclNode($1, funcSym);
+                                }
 paramsspec:  paramsspec ',' paramspec
-                                {  }
+                                { 
+                                    $$ = $1;
+                                    $$->AddParam($3); 
+                                }
         |   paramspec
-                            {  }
+                            { 
+                                $$ = new cParamsNode($1);
+                            }
 
 paramspec:  var_decl
-                                    {  }
+                                    { $$ = $1; }
 
 stmts:      stmts stmt
                                 { 
@@ -230,9 +256,24 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
                             {}
 
 func_call:  IDENTIFIER '(' params ')'
-                                    {  }
+                                    { 
+                                        cSymbol* sym = g_symbolTable.Find($1->GetName());
+                                        if(sym == nullptr)
+                                        {
+                                            yyerror("Function not declared");
+                                        }
+                                        $$ = new cFuncCallNode(sym, $3);
+                                    }
         |   IDENTIFIER '(' ')'
-                            {  }
+                            { 
+                                        cSymbol* sym = g_symbolTable.Find($1->GetName());
+                                        if(sym == nullptr)
+                                        {
+                                            yyerror("Function not declared");
+                                        }
+                                        $$ = new cFuncCallNode(sym, nullptr);
+
+                             }
 
 varref:   varref '.' varpart
                                 {
@@ -252,12 +293,14 @@ lval:     varref
                                 { $$ = $1; }
 
 params:   params ',' param
-                                {  }
+                                { $$ = $1;
+                                    $$->AddParam($3);
+                                 }
         |   param
-                            {  }
+                            { $$ = new cParamsNode($1); }
 
 param:      expr
-                                {  }
+                                { $$ = $1; }
 
 expr:       expr EQUALS addit
                                 {  }

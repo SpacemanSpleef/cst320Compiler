@@ -32,3 +32,6 @@
 #include "cWhileNode.h"
 #include "cAssignmentNode.h"
 #include "cStructDeclNode.h"
+#include "cFuncDeclNode.h"
+#include "cFuncCallNode.h"
+#include "cParamsNode.h"

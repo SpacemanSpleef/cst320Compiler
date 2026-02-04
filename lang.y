@@ -20,6 +20,7 @@
     class cFuncDeclNode;
     class cFuncCallNode;
     class cParamsNode;
+    class cArrayDeclNode;
 }
 
 %{
@@ -39,6 +40,7 @@
 %}
 %left '.' '['
 %locations
+%debug 
 
 /* union defines the type for lexical values */
 %union{
@@ -61,6 +63,8 @@
     cVarRefNode*    var_ref;
     cParamsNode*    param_ref;
     cFuncDeclNode*  func_decl;
+    cFuncCallNode*  func_call;
+    cArrayDeclNode* array_decl;
     }
 
 %{
@@ -99,11 +103,11 @@
 %type <decl_node> decl
 %type <decl_node> var_decl
 %type <decl_node> struct_decl
-%type <decl_node> array_decl
+%type <array_decl> array_decl
 %type <func_decl> func_decl
 %type <func_decl> func_header
 %type <func_decl> func_prefix
-%type <ast_node> func_call
+%type <func_call> func_call
 %type <param_ref> paramsspec
 %type <ast_node> paramspec
 %type <stmts_node> stmts
@@ -152,11 +156,11 @@ decls:      decls decl
 decl:       var_decl ';'
                                 { $$ = $1; }
         |   array_decl ';'
-                            {  }
+                            { $$ = $1; }
         |   struct_decl ';'
                             { $$ = $1; }
         |   func_decl
-                            {  }
+                            { $$ = $1; }
         |   error ';'
                             {  }
 
@@ -165,47 +169,46 @@ var_decl:   TYPE_ID IDENTIFIER
                                         g_symbolTable.Insert($2);
                                         $$ = new cVarDeclNode($1, g_symbolTable.FindLocal($2->GetName())); 
                                     }
-            | IDENTIFIER IDENTIFIER 
-                                    { 
-                                        g_symbolTable.Insert($2);
-                                        cSymbol* varSym = g_symbolTable.FindLocal($2->GetName());
-                                        cSymbol* typeSym = g_symbolTable.Find($1->GetName());
-
-                                        if (typeSym != nullptr) 
-                                        {
-                                            varSym->SetType(typeSym); // Store this link inside the symbol
-                                        }
-                                        $$ = new cVarDeclNode($1, varSym);         
-                                    }
 struct_decl:  STRUCT open decls close IDENTIFIER
                                 { 
-                                    g_symbolTable.Insert($5);
-                                    $$ = new cStructDeclNode(g_symbolTable.FindLocal($5->GetName()), $3); 
+                                        g_symbolTable.Insert($5);
+                                        $5->SetIsType(true);
+                                        $$ = new cStructDeclNode($5, $3);                                
                                 }
 array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
-                                {  }
+                                {  
+                                    g_symbolTable.Insert($6);
+                                    $6->SetIsType(true);
+                                    $$ = new cArrayDeclNode($2, $4, $6);
+                                }
 
 func_decl:  func_header ';'
-                                { 
-                                    g_symbolTable.DecreaseScope();
-                                    $$=$1;
-                                 }
-        |   func_header  '{' decls stmts '}'
-                                { 
-                                    cBlockNode* body = new cBlockNode($3, $4);
-                                    $1->AddBody(body);
-                                    g_symbolTable.DecreaseScope(); 
-                                    $$ = $1;    
-                                }
-        |   func_header  '{' stmts '}'
-                                { g_symbolTable.DecreaseScope(); }
+            { 
+                g_symbolTable.DecreaseScope(); // Close scope opened in func_prefix
+                $$ = $1; 
+            }
+        |   func_header '{' decls stmts '}'
+            { 
+                cBlockNode* body = new cBlockNode($3, $4);
+                $1->AddBody(body);
+                g_symbolTable.DecreaseScope(); // Close scope opened in func_prefix
+                $$ = $1;    
+            }
+        |   func_header '{' stmts '}'
+            { 
+                cBlockNode* body = new cBlockNode(nullptr, $3);
+                $1->AddBody(body);
+                g_symbolTable.DecreaseScope(); // Close scope opened in func_prefix
+                $$ = $1;
+            }
+
 func_header: func_prefix paramsspec ')'
                                 { 
                                     $1->AddParams($2);
                                     $$ = $1; 
                                 }
         |    func_prefix ')'
-                            {  }
+                            { $$ = $1; }
 func_prefix: TYPE_ID IDENTIFIER '('
                                 { 
                                     g_symbolTable.Insert($2);
@@ -223,9 +226,12 @@ paramsspec:  paramsspec ',' paramspec
                                 $$ = new cParamsNode($1);
                             }
 
-paramspec:  var_decl
-                                    { $$ = $1; }
-
+paramspec: TYPE_ID IDENTIFIER
+    {
+        g_symbolTable.Insert($2);
+        cSymbol* sym = g_symbolTable.FindLocal($2->GetName());
+        $$ = new cVarDeclNode($1, sym);
+    }
 stmts:      stmts stmt
                                 { 
                                     $$ = $1;
@@ -233,6 +239,8 @@ stmts:      stmts stmt
                                 }
         |   stmt
                             { $$ = new cStmtsNode($1); }
+        | decl 
+        {}
 
 stmt:       IF '(' expr ')' stmts ENDIF ';'
                                 { $$ = new cIfStmtNode($3, $5); }
@@ -247,7 +255,7 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
         |   lval '=' expr ';'
                             { $$ = new cAssignmentNode($1, $3); }
         |   func_call ';'
-                            {  }
+                            {  $$ = $1; }
         |   block
                             {  }
         |   RETURN expr ';'
@@ -303,7 +311,7 @@ param:      expr
                                 { $$ = $1; }
 
 expr:       expr EQUALS addit
-                                {  }
+                                { $$ = new cBinaryExprNode($1, EQUALS, $3); }
         |   addit
                             { $$ = $1; }
 

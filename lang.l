@@ -33,6 +33,8 @@ int ProcessIdentifier( int type);
 
     // token definitions. I gave "program" as an example
 [ \t\r\n]+    ;
+"//".* ;
+
 program                     DO_RETURN(PROGRAM);
 print                       DO_RETURN(PRINT);
 if                          DO_RETURN(IF);
@@ -43,11 +45,8 @@ while                       DO_RETURN(WHILE);
 struct                      DO_RETURN(STRUCT);
 array                       DO_RETURN(ARRAY);
 
-char                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
-int                         {DO_RETURN(ProcessIdentifier(TYPE_ID));}
-float                       {DO_RETURN(ProcessIdentifier(TYPE_ID));}
-double                      {DO_RETURN(ProcessIdentifier(TYPE_ID));}
-long                        {DO_RETURN(ProcessIdentifier(TYPE_ID));}
+
+float                       DO_RETURN(ProcessIdentifier(TYPE_ID));
 
 [0-9]+\.[0-9]+              { yylval.float_val = atof(yytext); DO_RETURN(FLOAT_VAL); }
 [0-9]+                      {yylval.int_val = atoi(yytext); DO_RETURN(INT_VAL);}
@@ -77,11 +76,14 @@ int ProcessIdentifier(int type)
     cSymbol *sym = g_symbolTable.Find(yytext);
     
     if (sym == nullptr) {
-        // If not found, THIS is the only place you should call 'new'
+
         sym = new cSymbol(yytext);
-        g_symbolTable.Insert(sym);
+    } else {
+        if (sym->IsType()) {
+            type = TYPE_ID;
+        }
     }
     
     yylval.symbol = sym;
-    DO_RETURN(type);
+    return type;
 }

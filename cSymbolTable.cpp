@@ -4,7 +4,14 @@
 cSymbolTable::cSymbolTable()
 {
     this->IncreaseScope();
+    std::string baseTypes[] = {"char", "int", "float", "long", "double"};
     
+    for (const std::string& typeName : baseTypes)
+    {
+        cSymbol* sym = new cSymbol(typeName);
+        sym->SetIsType(true);
+        this->Insert(sym);
+    }
 }
 
 symbolTable_t* cSymbolTable::IncreaseScope()

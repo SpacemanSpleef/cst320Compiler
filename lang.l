@@ -36,6 +36,7 @@ int ProcessIdentifier( int type);
 "//".* ;
 
 program                     DO_RETURN(PROGRAM);
+prints                      DO_RETURN(PRINTS);
 print                       DO_RETURN(PRINT);
 if                          DO_RETURN(IF);
 endif                       DO_RETURN(ENDIF);
@@ -45,7 +46,7 @@ while                       DO_RETURN(WHILE);
 struct                      DO_RETURN(STRUCT);
 array                       DO_RETURN(ARRAY);
 
-\"([^\\\"]|\\.)*\"  {DO_RETURN(STRING_LIT);}
+\"([^\\\"]|\\.)*\"          {yylval.str_val = new std::string(yytext + 1, yyleng - 2); DO_RETURN(STRING_LIT);}
 
 float                       DO_RETURN(ProcessIdentifier(TYPE_ID));
 

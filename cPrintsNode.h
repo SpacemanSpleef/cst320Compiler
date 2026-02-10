@@ -19,17 +19,19 @@ class cPrintsNode : public cStmtNode
 {
     public:
         // param is the value to be printed
-        cPrintsNode(string*& stringlit) : cStmtNode()
+        cPrintsNode(string* stringlit) : cStmtNode()
         {
-           m_value = stringlit;
+            if(stringlit != nullptr)
+                m_value = *stringlit;
+            else
+                m_value = "";
         }
         virtual string AttributesToString() 
         {
-            return " value=\"" + *m_value + "\"";
+            return " value=\"" + m_value + "\"";
         }
         virtual string NodeType() { return string("prints"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
     protected:
-        string* m_value;        // value of integer constant (literal)
-
+        string m_value;        // value of integer constant (literal)
 };

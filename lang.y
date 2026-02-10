@@ -22,6 +22,7 @@
     class cParamsNode;
     class cArrayDeclNode;
     class cPrintsNode;
+    class cIndexNode;
 }
 
 %{
@@ -178,7 +179,6 @@ struct_decl:  STRUCT open decls close IDENTIFIER
                                 }
 array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
                                 {  
-                                    g_symbolTable.Insert($6);
                                     $6->SetIsType(true);
                                     $$ = new cArrayDeclNode($2, $4, $6);
                                 }
@@ -290,7 +290,7 @@ varref:   varref '.' varpart
                                     $$->AddMember($3);
                                 }
         | varref '[' expr ']'
-                            {  }
+                            { $$ = new cIndexNode($1, $3); }
         | varpart
                             { $$ = new cVarRefNode($1); }
 

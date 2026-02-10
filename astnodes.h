@@ -37,3 +37,4 @@
 #include "cParamsNode.h"
 #include "cArrayDeclNode.h"
 #include "cPrintsNode.h"
+#include "cIndexNode.h"

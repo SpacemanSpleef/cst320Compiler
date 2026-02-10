@@ -1,3 +1,4 @@
+#pragma once
 class cVarRefNode : public cExprNode {
   protected:
     cVarRefNode* m_base;

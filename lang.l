@@ -45,6 +45,7 @@ while                       DO_RETURN(WHILE);
 struct                      DO_RETURN(STRUCT);
 array                       DO_RETURN(ARRAY);
 
+\"([^\\\"]|\\.)*\"  {DO_RETURN(STRING_LIT);}
 
 float                       DO_RETURN(ProcessIdentifier(TYPE_ID));
 

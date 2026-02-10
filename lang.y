@@ -21,6 +21,7 @@
     class cFuncCallNode;
     class cParamsNode;
     class cArrayDeclNode;
+    class cPrintsNode;
 }
 
 %{
@@ -251,7 +252,7 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
         |   PRINT '(' expr ')' ';'
                                 { $$ = new cPrintNode($3); }
         |   PRINTS '(' STRING_LIT ')' ';'
-                                { }
+                                { $$ = new cPrintsNode($3); }
         |   lval '=' expr ';'
                             { $$ = new cAssignmentNode($1, $3); }
         |   func_call ';'

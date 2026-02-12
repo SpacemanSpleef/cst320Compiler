@@ -39,6 +39,11 @@
 #include "astnodes.h"
 #include "cSymbolTable.h"
 
+#define CHECK_ERROR() { if (g_semanticErrorHappened) \
+    { g_semanticErrorHappened = false; } }
+#define PROP_ERROR() { if (g_semanticErrorHappened) \
+    { g_semanticErrorHappened = false; YYERROR; } }
+
 %}
 %left '.' '['
 %locations
@@ -71,7 +76,7 @@
 
 %{
     int yyerror(const char *msg);
-
+    static bool g_semanticErrorHappened = false;
     cAstNode *yyast_root;
 %}
 
@@ -361,4 +366,12 @@ int yyerror(const char *msg)
         << yytext << " on line " << yylineno << "\n";
 
     return 0;
+}
+
+
+void SemanticParseError(string error)
+{
+    std::cout << "ERROR: " << error << " near line " << yylineno << "\n";
+    g_semanticErrorHappened = true;
+    yynerrs++;
 }

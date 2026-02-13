@@ -1,17 +1,22 @@
 #include "cSymbolTable.h"
+#include "cBaseTypeNode.h"
 #include <iostream>
 
 cSymbolTable::cSymbolTable()
 {
     this->IncreaseScope();
     std::string baseTypes[] = {"char", "int", "float", "long", "double"};
-    
+    int iterator = 0;
+    int sizes[5] = {1, 4, 4, 8, 8};
     for (const std::string& typeName : baseTypes)
     {
         cSymbol* sym = new cSymbol(typeName);
-        sym->SetIsType(true);
+        cDeclNode * type= new cBaseTypeNode(typeName, sizes[iterator], (typeName == "float"));
+        sym->SetType(type);
+        iterator++;
         this->Insert(sym);
     }
+
 }
 
 symbolTable_t* cSymbolTable::IncreaseScope()

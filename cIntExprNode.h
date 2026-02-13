@@ -13,6 +13,7 @@
 
 #include "cAstNode.h"
 #include "cExprNode.h"
+#include "cSymbolTable.h"
 
 class cIntExprNode : public cExprNode
 {
@@ -29,6 +30,19 @@ class cIntExprNode : public cExprNode
         }
         virtual string NodeType() { return string("int"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
+        virtual cDeclNode* GetType()
+        {
+            cSymbol* tempSym = nullptr;
+            if(m_value >= 0 && m_value <= 127)
+            {
+                tempSym = g_symbolTable.Find("char");
+            } else
+            {
+                tempSym = g_symbolTable.Find("int");
+            }
+
+            return tempSym->GetType();
+        }
     protected:
         int m_value;        // value of integer constant (literal)
 };

@@ -47,4 +47,8 @@ class cStructDeclNode : public cDeclNode
     {
         visitor->Visit(this);    }
     virtual cSymbol* GetSymbol() override { return m_name; }
+    virtual bool IsStruct() override {return true;}
+    virtual cDeclNode* GetDecl() override {return this;}
+    virtual bool IsType() override {return true;}
+
 };

@@ -11,6 +11,7 @@
 
 #include <string>
 #include "cAstNode.h"
+#include "cDeclNode.h"
 using std::string;
 
 class cSymbol : public cAstNode
@@ -22,7 +23,6 @@ class cSymbol : public cAstNode
             m_id = ++nextId;        // get next available ID
             m_name = name;
             m_type = nullptr;
-            m_isType = false;
         }
 
         // return name of symbol
@@ -37,14 +37,11 @@ class cSymbol : public cAstNode
         }
         virtual string NodeType() { return string("sym"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
-        void SetType(cSymbol* type) { m_type = type; }
-        cSymbol* GetType() { return m_type; }
-        bool IsType(){return m_isType;}
-        void SetIsType(bool isType){m_isType = isType;}
+        cDeclNode* GetType(){return m_type;}
+        void SetType(cDeclNode* type){m_type = type;}
     protected:
         static long long nextId;        // Next avail symbol ID
         long long m_id;                 // Unique ID for this symbol
         string m_name;                  // name of symbol
-        bool m_isType;
-        cSymbol * m_type = nullptr;
+        cDeclNode* m_type = nullptr;
 };

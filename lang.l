@@ -47,11 +47,6 @@ struct                      DO_RETURN(STRUCT);
 array                       DO_RETURN(ARRAY);
 
 \"([^\\\"]|\\.)*\"          {yylval.str_val = new std::string(yytext + 1, yyleng - 2); DO_RETURN(STRING_LIT);}
-int                         DO_RETURN(ProcessIdentifier(TYPE_ID));
-char                        DO_RETURN(ProcessIdentifier(TYPE_ID));
-float                       DO_RETURN(ProcessIdentifier(TYPE_ID));
-long                        DO_RETURN(ProcessIdentifier(TYPE_ID));
-double                      DO_RETURN(ProcessIdentifier(TYPE_ID)); 
 
 [0-9]+\.[0-9]+              { yylval.float_val = atof(yytext); DO_RETURN(FLOAT_VAL); }
 [0-9]+                      {yylval.int_val = atoi(yytext); DO_RETURN(INT_VAL);}
@@ -83,11 +78,19 @@ int ProcessIdentifier(int type)
     {
         sym = new cSymbol(yytext);
         g_symbolTable.Insert(sym); 
-    } else 
-    {
-        if (sym->IsType()) 
+    } 
+    else 
+    {    
+        if (sym->GetType() != nullptr) 
         {
-            type = TYPE_ID;
+            if (sym->GetType()->IsType())
+            { 
+                type = TYPE_ID;
+            }
+            else if (sym->GetType()->GetDecl() != nullptr && sym->GetType()->GetDecl()->IsStruct()) 
+            {
+                type = TYPE_ID;
+            }
         }
     }
     

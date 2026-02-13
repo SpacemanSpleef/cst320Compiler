@@ -42,4 +42,6 @@ class cVarDeclNode : public cDeclNode
     {
         visitor->Visit(this);    }
     virtual cSymbol* GetSymbol() override { return m_name; }
+    virtual bool IsVar() override {return true;}
+    virtual cDeclNode* GetDecl(){return m_type->GetType();}
 };

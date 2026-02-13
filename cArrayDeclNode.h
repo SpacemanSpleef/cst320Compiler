@@ -25,6 +25,8 @@ class cArrayDeclNode : public cDeclNode
         // Often useful for semantic analysis later
         cSymbol* GetBaseType() { return m_baseType; }
         int GetSize() { return m_size; }
+        virtual bool IsArray() override {return true;}
+        virtual cDeclNode* GetDecl() override {return this;}
 
     protected:
         cSymbol *m_baseType;

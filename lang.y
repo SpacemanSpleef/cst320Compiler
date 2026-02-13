@@ -179,12 +179,10 @@ var_decl:   TYPE_ID IDENTIFIER
 struct_decl:  STRUCT open decls close IDENTIFIER
                                 { 
                                         g_symbolTable.Insert($5);
-                                        $5->SetIsType(true);
                                         $$ = new cStructDeclNode($5, $3);                                
                                 }
 array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
                                 {  
-                                    $6->SetIsType(true);
                                     $$ = new cArrayDeclNode($2, $4, $6);
                                 }
 

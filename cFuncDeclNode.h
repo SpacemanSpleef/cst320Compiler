@@ -18,4 +18,6 @@ public:
     virtual cSymbol* GetSymbol() override { return m_name; }
     virtual string NodeType() override { return "func_decl"; }
     virtual void Visit(cVisitor* visitor) override { visitor->Visit(this); }
+    virtual bool IsFunc() override {return true;}
+    virtual cDeclNode* GetDecl() override {return m_returnType->GetType();}
 };

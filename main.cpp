@@ -29,7 +29,7 @@ int main(int argc, char **argv)
     // g_symbolTable.Insert(new cSymbol("long")); // ID 4
     // g_symbolTable.Insert(new cSymbol("double"));   // ID 5
     std::cout << "Theodore Gwynn" << std::endl;
-
+    
     const char *outfile_name;
     int result = 0;
 
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
         {
             std::cout << yyast_root->ToString();
         } else {
-            std::cout << " Errors in compile\n";
+            std::cout << yynerrs << " Errors in compile\n";
         }
     }
 

@@ -22,7 +22,7 @@ class cSymbol : public cAstNode
         {
             m_id = ++nextId;        // get next available ID
             m_name = name;
-            m_type = nullptr;
+            m_decl = nullptr;
         }
 
         // return name of symbol
@@ -37,11 +37,15 @@ class cSymbol : public cAstNode
         }
         virtual string NodeType() { return string("sym"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
-        cDeclNode* GetType(){return m_type;}
-        void SetType(cDeclNode* type){m_type = type;}
+        cDeclNode* GetDecl() { return m_decl; }
+        void SetDecl(cDeclNode* decl) { m_decl = decl; }    
+        void SetType(cDeclNode* decl) { m_decl = decl; }
+        void SetIsType(bool t){ isType = t; }
+        bool IsType() const {return isType;}
     protected:
         static long long nextId;        // Next avail symbol ID
         long long m_id;                 // Unique ID for this symbol
         string m_name;                  // name of symbol
-        cDeclNode* m_type = nullptr;
+        cDeclNode* m_decl = nullptr;
+        bool isType = false;
 };

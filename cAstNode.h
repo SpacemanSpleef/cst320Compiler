@@ -33,6 +33,23 @@ class cAstNode
         // Constructor
         cAstNode() : m_LineNum(yylineno), m_hasSemanticError(false) {}
 
+        //*************************************
+        int NumChildren()       { return (int)m_children.size(); }
+
+        //*************************************
+        // Return a child by index
+        cAstNode* GetChild(int child)
+        {
+            if (child >= (int)m_children.size()) return nullptr;
+            return m_children[child];
+        }
+
+                // Set a child by index. The child must already exist
+        void SetChild(int index, cAstNode *child)
+        {
+            m_children[index] = child;
+        }
+
     //****************************************
     // As protected, these methods are limited as to where you call them.
     // I impose an even more-strict requirement:
@@ -66,24 +83,7 @@ class cAstNode
 
         //*************************************
         bool HasChildren()      { return !m_children.empty(); }
-
-        //*************************************
-        int NumChildren()       { return (int)m_children.size(); }
-
-        //*************************************
-        // Return a child by index
-        cAstNode* GetChild(int child)
-        {
-            if (child >= (int)m_children.size()) return nullptr;
-            return m_children[child];
-        }
-
-        //*************************************
-        // Set a child by index. The child must already exist
-        void SetChild(int index, cAstNode *child)
-        {
-            m_children[index] = child;
-        }
+        //************************************
 
     //*****************************************
     // The following are only used by the ToString function. They should

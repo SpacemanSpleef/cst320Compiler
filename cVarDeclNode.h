@@ -14,18 +14,38 @@ using std::string;
 class cVarDeclNode : public cDeclNode
 {
   protected:
-    cSymbol* m_type;   // e.g., "int", "char"
+    cDeclNode* m_type;   // e.g., "int", "char"
     cSymbol* m_name;   // e.g., "aaa", "bbb"
 
   public:
-    cVarDeclNode(cSymbol* type, cSymbol* name)
-        : cDeclNode(), m_type(type), m_name(name) {
-            AddChild(m_type);
-            AddChild(m_name);
+cVarDeclNode(cDeclNode* type, cSymbol* sym) : cDeclNode() 
+{
+    m_type = type;
+    
+    cSymbol* local = g_symbolTable.FindLocal(sym->GetName());
+    if (local != nullptr) {
+        // ERROR: Variable already exists in this specific block
+        SemanticParseError("Symbol " + sym->GetName() + " already defined in current scope");
+        m_name = local; 
+    } 
+    else {
+        cSymbol* global = g_symbolTable.Find(sym->GetName());
+        if (global != nullptr) {
+            // SHADOWING: Create new symbol for the new scope to get a new ID
+            m_name = new cSymbol(sym->GetName());
+        } else {
+            // BRAND NEW: Use the symbol from the lexer
+            m_name = sym;
         }
+        g_symbolTable.Insert(m_name);
+    }
 
-    // Accessors
-    cSymbol* GetType() { return m_type; }
+    m_name->SetDecl(this);
+    this->AddChild(m_type->GetSymbol()); 
+    this->AddChild(m_name);
+}
+
+//cSymbol* GetType() { return m_type; }
     cSymbol* GetName() { return m_name; }
 
     // Return attributes for XML output
@@ -38,10 +58,9 @@ class cVarDeclNode : public cDeclNode
     virtual string NodeType() override { return "var_decl"; }
 
     // Traverse children
-    virtual void Visit(cVisitor* visitor) override
-    {
-        visitor->Visit(this);    }
+    virtual void Visit(cVisitor *visitor) override {visitor->Visit(this);}    
     virtual cSymbol* GetSymbol() override { return m_name; }
     virtual bool IsVar() override {return true;}
-    virtual cDeclNode* GetDecl(){return m_type->GetType();}
+    virtual cDeclNode* GetDecl() override {return this;}
+    virtual cDeclNode* GetType() override {return m_type;}
 };

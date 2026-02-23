@@ -25,7 +25,7 @@ class cDeclNode : public cAstNode
         virtual bool IsInt()    { return false; }
         virtual bool IsChar()   { return false; }
         virtual int  GetSize()  { return 0; }
-        //virtual cDeclNode *GetType() = 0;
+        virtual cDeclNode *GetType() = 0;
         virtual cDeclNode* GetDecl() = 0;
 
 };

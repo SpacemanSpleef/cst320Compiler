@@ -77,23 +77,15 @@ int ProcessIdentifier(int type)
     if (sym == nullptr) 
     {
         sym = new cSymbol(yytext);
-        g_symbolTable.Insert(sym); 
     } 
     else 
-    {    
-        if (sym->GetType() != nullptr) 
+    {       
+        cDeclNode* decl = sym->GetDecl(); 
+        if (decl != nullptr && (decl->IsType() || decl->IsStruct())) 
         {
-            if (sym->GetType()->IsType())
-            { 
-                type = TYPE_ID;
-            }
-            else if (sym->GetType()->GetDecl() != nullptr && sym->GetType()->GetDecl()->IsStruct()) 
-            {
-                type = TYPE_ID;
-            }
+            type = TYPE_ID;
         }
     }
-    
     yylval.symbol = sym;
     return type;
 }

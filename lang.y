@@ -110,13 +110,13 @@
 %type <decl_node> decl
 %type <decl_node> var_decl
 %type <decl_node> struct_decl
-%type <array_decl> array_decl
+%type <decl_node> array_decl
 %type <func_decl> func_decl
 %type <func_decl> func_header
 %type <func_decl> func_prefix
 %type <func_call> func_call
 %type <param_ref> paramsspec
-%type <ast_node> paramspec
+%type <decl_node> paramspec
 %type <stmts_node> stmts
 %type <stmt_node> stmt
 %type <ast_node> lval
@@ -140,26 +140,26 @@ program: PROGRAM block
                                   else
                                       YYABORT;
                                 }
-block:  open decls stmts close
-                                { 
-                                    $$ = new cBlockNode($2, $3);
-                                }
-    |   open stmts close
-                                { $$ = new cBlockNode(nullptr, $2); }
+block: open decls stmts close
+{
+    $$ = new cBlockNode($2, $3);
+}
+| open stmts close
+{
+    $$ = new cBlockNode(nullptr, $2);
+}
 
-open:   '{'
-                                {  $$ = g_symbolTable.IncreaseScope(); }
+open: '{'
+{
+    $$ = g_symbolTable.IncreaseScope();  // new fresh scope
+}
 
-close:  '}'
-                                { $$ = g_symbolTable.DecreaseScope(); }
-
-decls:      decls decl
-                                { 
-                                    $$ = $1;
-                                    $$->Insert($2);
-                                 }
-        |   decl
-                                { $$ = new cDeclsNode($1); }
+close: '}'
+{
+    $$ = g_symbolTable.DecreaseScope();
+}
+decls:      decls decl   { $$ = $1; $$->Insert($2); }
+        |   decl         { $$ = new cDeclsNode($1); }
 decl:       var_decl ';'
                                 { $$ = $1; }
         |   array_decl ';'
@@ -171,55 +171,90 @@ decl:       var_decl ';'
         |   error ';'
                             {  }
 
-var_decl:   TYPE_ID IDENTIFIER
-                                    { 
-                                        g_symbolTable.Insert($2);
-                                        $$ = new cVarDeclNode($1, g_symbolTable.FindLocal($2->GetName())); 
-                                    }
+var_decl: TYPE_ID IDENTIFIER
+{
+    $$ = new cVarDeclNode($1->GetDecl(), $2);
+    PROP_ERROR();
+}
 struct_decl:  STRUCT open decls close IDENTIFIER
-                                { 
-                                        g_symbolTable.Insert($5);
-                                        $$ = new cStructDeclNode($5, $3);                                
-                                }
-array_decl:   ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
-                                {  
-                                    $$ = new cArrayDeclNode($2, $4, $6);
-                                }
+{   
+    $$ = new cStructDeclNode($5, $3); 
 
+}
+array_decl: ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
+{
+    // Pass the symbols directly. The constructor now handles 
+    // Find(), FindLocal(), and Insert().
+    $$ = new cArrayDeclNode($2, $4, $6);
+    PROP_ERROR();
+}
 func_decl:  func_header ';'
-            { 
-                g_symbolTable.DecreaseScope(); // Close scope opened in func_prefix
-                $$ = $1; 
+            {  cSymbol* existing = g_symbolTable.FindLocal($1->GetName()->GetName());
+                if (existing != nullptr && existing->GetDecl()->IsFunc()) {
+                    $$ = dynamic_cast<cFuncDeclNode*>(existing->GetDecl());
+                } else {
+                    $$ = $1;
+                }
+                g_symbolTable.DecreaseScope(); 
             }
         |   func_header '{' decls stmts '}'
             { 
-                cBlockNode* body = new cBlockNode($3, $4);
-                $1->AddBody(body);
-                g_symbolTable.DecreaseScope(); // Close scope opened in func_prefix
-                $$ = $1;    
+                $1->AddBody($3, $4);
+                g_symbolTable.DecreaseScope();
+                $$ = $1;
             }
         |   func_header '{' stmts '}'
             { 
-                cBlockNode* body = new cBlockNode(nullptr, $3);
-                $1->AddBody(body);
-                g_symbolTable.DecreaseScope(); // Close scope opened in func_prefix
+                $1->AddBody(nullptr, $3);
+                g_symbolTable.DecreaseScope();
                 $$ = $1;
             }
-
+        |   func_header '{' decls '}'
+            { 
+                $1->AddBody($3, nullptr);
+                g_symbolTable.DecreaseScope();
+                $$ = $1;
+            }
+        |   func_header '{' '}'
+            { 
+                $1->AddBody(nullptr, nullptr);
+                g_symbolTable.DecreaseScope();
+                $$ = $1;
+            }
 func_header: func_prefix paramsspec ')'
                                 { 
                                     $1->AddParams($2);
+                                    CHECK_ERROR();
                                     $$ = $1; 
                                 }
         |    func_prefix ')'
                             { $$ = $1; }
 func_prefix: TYPE_ID IDENTIFIER '('
-                                { 
-                                    g_symbolTable.Insert($2);
-                                    cSymbol* funcSym = g_symbolTable.FindLocal($2->GetName());
-                                    g_symbolTable.IncreaseScope();
-                                    $$ = new cFuncDeclNode($1, funcSym);
-                                }
+{
+    cSymbol* typeSym = $1;
+    cDeclNode* retType = typeSym->GetDecl();
+
+    // 1. Check if the function name is already known in the global scope
+    cSymbol* existing = g_symbolTable.FindLocal($2->GetName());
+    
+    // 2. Always create a NEW AST node for this specific line of code
+    cFuncDeclNode* funcDecl = new cFuncDeclNode(retType, $2); 
+
+    if (!existing)
+    {
+        // First time seeing this function name
+        g_symbolTable.Insert($2);
+        $2->SetDecl(funcDecl);
+    }
+    else
+    {
+        funcDecl->SetName(existing);    
+    }
+
+    $$ = funcDecl;
+    g_symbolTable.IncreaseScope();
+}
+
 paramsspec:  paramsspec ',' paramspec
                                 { 
                                     $$ = $1;
@@ -231,21 +266,18 @@ paramsspec:  paramsspec ',' paramspec
                             }
 
 paramspec: TYPE_ID IDENTIFIER
+{
+    cDeclNode* typeDecl = $1->GetDecl();
+    if (!typeDecl || !typeDecl->IsType())
     {
-        g_symbolTable.Insert($2);
-        cSymbol* sym = g_symbolTable.FindLocal($2->GetName());
-        $$ = new cVarDeclNode($1, sym);
+        SemanticParseError("Type " + $1->GetName() + " not defined");
+        PROP_ERROR();
     }
-stmts:      stmts stmt
-                                { 
-                                    $$ = $1;
-                                    $$->Insert($2);
-                                }
-        |   stmt
-                            { $$ = new cStmtsNode($1); }
-        | decl 
-        {}
-
+    $$ = new cVarDeclNode(typeDecl, $2);
+    PROP_ERROR();
+}
+stmts:      stmts stmt   { $$ = $1; $$->Insert($2); }
+        |   stmt         { $$ = new cStmtsNode($1); }
 stmt:       IF '(' expr ')' stmts ENDIF ';'
                                 { $$ = new cIfStmtNode($3, $5); }
         |   IF '(' expr ')' stmts ELSE stmts ENDIF ';'
@@ -260,8 +292,6 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
                             { $$ = new cAssignmentNode($1, $3); }
         |   func_call ';'
                             {  $$ = $1; }
-        |   block
-                            {  }
         |   RETURN expr ';'
                             { $$ = new cReturnNode($2); }
         |   error ';'
@@ -269,20 +299,21 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
 
 func_call:  IDENTIFIER '(' params ')'
                                     { 
-                                        cSymbol* sym = g_symbolTable.Find($1->GetName());
-                                        if(sym == nullptr)
-                                        {
-                                            yyerror("Function not declared");
-                                        }
-                                        $$ = new cFuncCallNode(sym, $3);
+                                    cSymbol* sym = g_symbolTable.Find($1->GetName());
+                                    if (sym == nullptr) 
+                                    {
+                                        SemanticParseError("Symbol " + $1->GetName() + " not defined");
+                                    }
+                                    $$ = new cFuncCallNode(sym, $3);                                    
                                     }
         |   IDENTIFIER '(' ')'
                             { 
                                         cSymbol* sym = g_symbolTable.Find($1->GetName());
                                         if(sym == nullptr)
                                         {
-                                            yyerror("Function not declared");
+                                            SemanticParseError("Symbol " + $1->GetName() + " not defined");
                                         }
+                                        CHECK_ERROR();
                                         $$ = new cFuncCallNode(sym, nullptr);
 
                              }
@@ -299,8 +330,6 @@ varref:   varref '.' varpart
 
 varpart:  IDENTIFIER
                                 { $$ = $1;  }
-        | TYPE_ID 
-            {$$ = $1; }
 lval:     varref
                                 { $$ = $1; }
 

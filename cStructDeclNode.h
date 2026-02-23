@@ -19,10 +19,14 @@ class cStructDeclNode : public cDeclNode
 
 
   public:
-    cStructDeclNode(cSymbol* name, cDeclsNode* decls): cDeclNode(), m_name(name), m_decls(decls) {
-        AddChild(decls);    
-        AddChild(m_name);
-        }
+        cStructDeclNode(cSymbol* name, cDeclsNode* members)
+        : cDeclNode()
+    {
+        m_name = name;
+        m_decls = members;
+        if (m_decls) 
+            AddChild(m_decls);
+    }
 
     // Accessors
     //cSymbol* GetType() { return m_type; }
@@ -49,6 +53,8 @@ class cStructDeclNode : public cDeclNode
     virtual cSymbol* GetSymbol() override { return m_name; }
     virtual bool IsStruct() override {return true;}
     virtual cDeclNode* GetDecl() override {return this;}
+    virtual cDeclNode* GetType() override {return this;}
     virtual bool IsType() override {return true;}
+    cDeclsNode* GetMembers() {return m_decls;}
 
 };

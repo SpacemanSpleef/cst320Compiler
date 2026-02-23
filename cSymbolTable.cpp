@@ -4,89 +4,84 @@
 
 cSymbolTable::cSymbolTable()
 {
-    this->IncreaseScope();
+    // Global scope for base types
+    symbolTable_t* globalScope = new symbolTable_t();
+    tables.push(globalScope);
+
     std::string baseTypes[] = {"char", "int", "float", "long", "double"};
-    int iterator = 0;
-    int sizes[5] = {1, 4, 4, 8, 8};
-    for (const std::string& typeName : baseTypes)
+    int sizes[] = {1, 4, 4, 8, 8};
+
+    for (int i = 0; i < 5; i++)
     {
-        cSymbol* sym = new cSymbol(typeName);
-        cDeclNode * type= new cBaseTypeNode(typeName, sizes[iterator], (typeName == "float"));
-        sym->SetType(type);
-        iterator++;
-        this->Insert(sym);
+        cSymbol* sym = new cSymbol(baseTypes[i]);
+        // Requirement 4: Create cBaseTypeNode and set as the decl
+        bool isFloat = (baseTypes[i] == "float" || baseTypes[i] == "double");
+        cDeclNode* typeDecl = new cBaseTypeNode(sym, sizes[i], isFloat);
+        
+        sym->SetDecl(typeDecl); // Linked via pointer now, not a bool
+        globalScope->symbols.insert({baseTypes[i], sym});
     }
-
 }
-
 symbolTable_t* cSymbolTable::IncreaseScope()
 {
-    symbolTable_t* newScope = new symbolTable_t();
+    symbolTable_t* newScope = new symbolTable_t(); // fresh empty scope
     tables.push(newScope);
     return newScope;
 }
 
 symbolTable_t* cSymbolTable::DecreaseScope()
 {
-    symbolTable_t* outerMostScope = tables.top();
+    if (tables.empty()) return nullptr;
+    symbolTable_t* top = tables.top();
     tables.pop();
-    return outerMostScope;
-}
-void cSymbolTable::Insert(cSymbol * sym)
-{
-    if(FindLocal(sym->GetName()) != nullptr)
-    {return;}
-
-    symbolTable_t* outerScope = tables.top();
-    cSymbol *symbolToInsert = sym;
-    if (Find(sym->GetName()) != nullptr) {
-        symbolToInsert = new cSymbol(sym->GetName());
-    }
-    outerScope->symbols.insert(std::pair<string, cSymbol*>(symbolToInsert->GetName(), symbolToInsert));
-
-    return;
+    return top;
 }
 
-cSymbol* cSymbolTable::Find(string name)
+void cSymbolTable::Insert(cSymbol *sym)
 {
-    cSymbol* sym = nullptr;
-    std::stack<symbolTable_t*> backup;
-    while(sym == nullptr && !tables.empty())
+    symbolTable_t* curScope = tables.top();
+    
+    // IMPORTANT: Use find(), NOT Find(). 
+    // You only care if it exists in THIS specific block.
+    if (curScope->symbols.find(sym->GetName()) != curScope->symbols.end())
     {
-        symbolTable_t* curScope = tables.top();
-        try
-        {
-            sym = curScope->symbols.at(name);
-        }
-        catch(std::out_of_range &e)
-        {
-            sym = nullptr;
-            tables.pop();
-            backup.push(curScope);
-        }
+        SemanticParseError("Symbol " + sym->GetName() + " already defined in current scope");
+        return;
     }
-    while(!backup.empty())
-    {
-        tables.push(backup.top());
-        backup.pop();
-    }
-    return sym;
+
+    curScope->symbols[sym->GetName()] = sym;
 }
 
 cSymbol* cSymbolTable::FindLocal(string name)
 {
+    // Only check top-most program scope
+    symbolTable_t* curScope = tables.top();
+    auto it = curScope->symbols.find(name);
+    if (it != curScope->symbols.end())
+        return it->second;
+    return nullptr;
+}
 
-    symbolTable_t* scope = tables.top();
+cSymbol* cSymbolTable::Find(string name)
+{
+    // searches top -> bottom
+    std::stack<symbolTable_t*> backup;
     cSymbol* sym = nullptr;
-    try
+
+    while (!tables.empty() && !sym)
     {
-        sym = scope->symbols.at(name);
+        symbolTable_t* curScope = tables.top();
+        auto it = curScope->symbols.find(name);
+        if (it != curScope->symbols.end()) sym = it->second;
+        tables.pop();
+        backup.push(curScope);
     }
-    catch(std::out_of_range &e)
+
+    while (!backup.empty())
     {
-        sym = nullptr;
-   
+        tables.push(backup.top());
+        backup.pop();
     }
-    //tables.push(scope);
+
     return sym;
 }

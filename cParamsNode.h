@@ -11,4 +11,8 @@ public:
 
     virtual string NodeType() override { return "params"; }
     virtual void Visit(cVisitor* visitor) override { visitor->Visit(this); }
+    int GetParamCount()
+    {
+        return NumChildren();
+    }
 };

@@ -41,7 +41,7 @@ class cIntExprNode : public cExprNode
                 tempSym = g_symbolTable.Find("int");
             }
 
-            return tempSym->GetType();
+            return tempSym->GetDecl();
         }
     protected:
         int m_value;        // value of integer constant (literal)

@@ -189,13 +189,20 @@ array_decl: ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
     PROP_ERROR();
 }
 func_decl:  func_header ';'
-            {  cSymbol* existing = g_symbolTable.FindLocal($1->GetName()->GetName());
-                if (existing != nullptr && existing->GetDecl()->IsFunc()) {
-                    $$ = dynamic_cast<cFuncDeclNode*>(existing->GetDecl());
-                } else {
-                    $$ = $1;
+            {  // Check if we already have a definition for this function
+                cSymbol* sym = g_symbolTable.FindLocal($1->GetName()->GetName());
+                if (sym != nullptr) {
+                    cFuncDeclNode* def = dynamic_cast<cFuncDeclNode*>(sym->GetDecl());
+                    if (def != nullptr && def->HasDefinition()) {
+                        // "Promote" the body from the definition to this prototype
+                        // Skip index 0 (type) and 1 (name)
+                        for (int i = 2; i < def->NumChildren(); i++) {
+                            $1->AddChild(def->GetChild(i));
+                        }
+                    }
                 }
-                g_symbolTable.DecreaseScope(); 
+                g_symbolTable.DecreaseScope();
+                $$ = $1; 
             }
         |   func_header '{' decls stmts '}'
             { 
@@ -296,6 +303,8 @@ stmt:       IF '(' expr ')' stmts ENDIF ';'
                             { $$ = new cReturnNode($2); }
         |   error ';'
                             {}
+        |   block
+                    {$$ = $1;}
 
 func_call:  IDENTIFIER '(' params ')'
                                     { 

@@ -50,6 +50,11 @@ class cAstNode
             m_children[index] = child;
         }
 
+        void AddChild(cAstNode *child)
+        {
+            m_children.push_back(child);
+        }
+
     //****************************************
     // As protected, these methods are limited as to where you call them.
     // I impose an even more-strict requirement:
@@ -59,10 +64,7 @@ class cAstNode
     protected:
         //*************************************
         // Add a child to this node
-        void AddChild(cAstNode *child)
-        {
-            m_children.push_back(child);
-        }
+        
 
         //*************************************
         // Copy all children from one node into this node

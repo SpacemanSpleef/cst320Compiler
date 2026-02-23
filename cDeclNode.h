@@ -27,5 +27,11 @@ class cDeclNode : public cAstNode
         virtual int  GetSize()  { return 0; }
         virtual cDeclNode *GetType() = 0;
         virtual cDeclNode* GetDecl() = 0;
-
+        virtual std::string GetName() = 0;
+        bool IsCompatibleWith(cDeclNode *type) 
+        {
+            if (this == type) return true;
+            if (this->IsFloat() && type->IsInt()) return true;
+            return false;
+        }
 };

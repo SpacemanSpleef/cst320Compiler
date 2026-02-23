@@ -38,3 +38,4 @@
 #include "cArrayDeclNode.h"
 #include "cPrintsNode.h"
 #include "cIndexNode.h"
+#include "cAssignmentNode.h"

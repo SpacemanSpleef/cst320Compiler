@@ -4,6 +4,9 @@
 // Main function for lang compiler
 //
 // Author: Phil Howard 
+// phil.howard@oit.edu
+//
+// Date: Nov. 28, 2015
 //
 
 #include <stdio.h>
@@ -15,23 +18,27 @@
 #include "lex.h"
 #include "astnodes.h"
 #include "langparse.h"
+//#include "cComputeSize.h"
+#include "cSemantics.h"
+//#include "cCodeGen.h"
+#include "cSymbol.h"
+
+#define LAB5B
+//#define LAB6
+//#define LAB7
 
 // define global variables
-cSymbolTable g_symbolTable;
 long long cSymbol::nextId;
+cSymbolTable g_symbolTable;
 
 // takes two string args: input_file, and output_file
 int main(int argc, char **argv)
 {
-    // g_symbolTable.Insert(new cSymbol("char"));   // ID 1
-    // g_symbolTable.Insert(new cSymbol("int"));    // ID 2
-    // g_symbolTable.Insert(new cSymbol("float"));  // ID 3
-    // g_symbolTable.Insert(new cSymbol("long")); // ID 4
-    // g_symbolTable.Insert(new cSymbol("double"));   // ID 5
     std::cout << "Theodore Gwynn" << std::endl;
-    
+
     const char *outfile_name;
     int result = 0;
+    //std::streambuf *cout_buf = std::cout.rdbuf();
 
     if (argc > 1)
     {
@@ -43,43 +50,69 @@ int main(int argc, char **argv)
         }
     }
 
-    // Setup the output. If empty, use stdout (which may be redirected)
     if (argc > 2)
     {
         outfile_name = argv[2];
+    } else {
+        outfile_name = "/dev/tty";
+    }
 
-        FILE *output = fopen(outfile_name, "w");
-        if (output == nullptr)
-        {
-            std::cerr << "Unable to open output file " << outfile_name << "\n";
-            exit(-1);
-        }
+#ifndef LAB7
+    FILE *output = fopen(outfile_name, "w");
+    if (output == nullptr)
+    {
+        std::cerr << "Unable to open output file " << outfile_name << "\n";
+        exit(-1);
+    }
 
-        // redirect stdout to the output file
-        int output_fd = fileno(output);
-        if (dup2(output_fd, 1) != 1)
+    // redirect stdout to the output file
+    int output_fd = fileno(output);
+    if (dup2(output_fd, 1) != 1)
+    {
+        std::cerr << "Unable to configure output stream\n";
+        exit(-1);
+    }
+#endif
+
+    g_symbolTable.InitRootTable();
+
+    result = yyparse();
+    if (yyast_root != nullptr && result==0)
+    {
+#ifdef LAB5B
+        cSemantics semantics;
+        semantics.VisitAllNodes(yyast_root);
+#endif
+
+        result += yynerrs;
+        if (result == 0)
         {
-            std::cerr << "Unable configure output stream\n";
-            exit(-1);
+#if defined(LAB6) || defined(LAB7)
+            cComputeSize sizer;
+            sizer.VisitAllNodes(yyast_root);
+#endif
+
+#ifdef LAB7
+            string filename(outfile_name);
+            filename += ".sl";
+            {
+                cCodeGen coder(filename);
+                coder.VisitAllNodes(yyast_root);
+            }
+#else
+            std::cout << yyast_root->ToString() << std::endl;
+#endif
         }
     }
 
-    result = yyparse();
-    if (yyast_root != nullptr)
+    if (yynerrs != 0)
     {
-        if (result == 0 && yynerrs == 0)
-        {
-            std::cout << yyast_root->ToString();
-        } 
-        else 
-        {
-            std::cout << yynerrs << " Errors in compile\n";
-        }
+        std::cout << yynerrs << " Errors in compile\n";
     }
 
     if (result == 0 && yylex() != 0)
     {
-        std::cout << "Junk at end of program\n";
+        std::cerr << "Junk at end of program\n";
     }
 
     return result;

@@ -19,6 +19,12 @@ public:
 
     virtual string NodeType() override { return "varref"; }
     virtual void Visit(cVisitor* visitor) override { visitor->Visit(this); }
-    
+    virtual cDeclNode* GetType() override {
+    if (m_ref != nullptr) {
+        return m_ref->GetDecl();
+    }
+    return nullptr;
+}
+
     cSymbol* GetSymbol() { return m_ref; }
 };

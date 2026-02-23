@@ -7,20 +7,6 @@ cSymbolTable::cSymbolTable()
     // Global scope for base types
     symbolTable_t* globalScope = new symbolTable_t();
     tables.push(globalScope);
-
-    std::string baseTypes[] = {"char", "int", "float", "long", "double"};
-    int sizes[] = {1, 4, 4, 8, 8};
-
-    for (int i = 0; i < 5; i++)
-    {
-        cSymbol* sym = new cSymbol(baseTypes[i]);
-        // Requirement 4: Create cBaseTypeNode and set as the decl
-        bool isFloat = (baseTypes[i] == "float" || baseTypes[i] == "double");
-        cDeclNode* typeDecl = new cBaseTypeNode(sym, sizes[i], isFloat);
-        
-        sym->SetDecl(typeDecl); // Linked via pointer now, not a bool
-        globalScope->symbols.insert({baseTypes[i], sym});
-    }
 }
 symbolTable_t* cSymbolTable::IncreaseScope()
 {
@@ -77,4 +63,21 @@ cSymbol* cSymbolTable::Find(string name)
     }
 
     return sym;
+}
+
+void cSymbolTable::InitRootTable()
+{
+    symbolTable_t* globalScope = tables.top();
+    std::string baseTypes[] = {"char", "int", "float", "long", "double"};
+    int sizes[] = {1, 4, 4, 8, 8};
+
+    for (int i = 0; i < 5; i++)
+    {
+        cSymbol* sym = new cSymbol(baseTypes[i]);
+        bool isFloat = (baseTypes[i] == "float" || baseTypes[i] == "double");
+        cDeclNode* typeDecl = new cBaseTypeNode(sym, sizes[i], isFloat);
+        
+        sym->SetDecl(typeDecl); // Linked via pointer now, not a bool
+        globalScope->symbols.insert({baseTypes[i], sym});
+    }
 }

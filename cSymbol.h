@@ -25,9 +25,6 @@ class cSymbol : public cAstNode
             m_decl = nullptr;
         }
 
-        // return name of symbol
-        string GetName() { return m_name; }
-
         virtual string AttributesToString()
         {
             string result(" id=\"");
@@ -42,6 +39,7 @@ class cSymbol : public cAstNode
         void SetType(cDeclNode* decl) { m_decl = decl; }
         void SetIsType(bool t){ isType = t; }
         bool IsType() const {return isType;}
+        virtual std::string GetName() {return m_name;}
     protected:
         static long long nextId;        // Next avail symbol ID
         long long m_id;                 // Unique ID for this symbol

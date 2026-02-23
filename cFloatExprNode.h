@@ -29,6 +29,7 @@ class cFloatExprNode : public cExprNode
         }
         virtual string NodeType() { return string("float"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
+        virtual cDeclNode* GetType() {return g_symbolTable.Find("float")->GetDecl();}
     protected:
         float m_value;        // value of float constant (literal)
 };

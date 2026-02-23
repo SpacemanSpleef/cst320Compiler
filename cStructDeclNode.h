@@ -76,5 +76,6 @@ class cStructDeclNode : public cDeclNode
     virtual cDeclNode* GetType() override {return this;}
     virtual bool IsType() override {return true;}
     cDeclsNode* GetMembers() {return m_decls;}
+    virtual std::string GetName(){return m_name->GetName();}
 
 };

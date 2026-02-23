@@ -17,5 +17,5 @@ class cExprNode : public cStmtNode
 {
     public:
         cExprNode() : cStmtNode() {}
-        virtual cDeclNode* GetType() {return nullptr;};
+        virtual cDeclNode* GetType() = 0;
 };

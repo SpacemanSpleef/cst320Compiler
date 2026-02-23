@@ -38,7 +38,8 @@ cVarDeclNode(cDeclNode* type, cSymbol* sym) : cDeclNode()
 }
 
 //cSymbol* GetType() { return m_type; }
-    cSymbol* GetName() { return m_name; }
+    //cSymbol* GetName() { return m_name; }
+    virtual std::string GetName() override {return m_name->GetName();}
 
     // Return attributes for XML output
     virtual string AttributesToString() override

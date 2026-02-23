@@ -55,7 +55,7 @@ public:
     cSymbol* GetSymbol() { return m_name; }
     cDeclNode* GetBaseType() { return m_baseType; }
     int GetSize() { return m_size; }
-
+    virtual std::string GetName() {return m_name->GetName();}
 protected:
     cDeclNode* m_baseType; // Symbol for element type
     int m_size;          // Array length

@@ -70,7 +70,8 @@ cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() {
     bool HasDefinition() { return m_hasDefinition; }
     void SetHasDefinition(bool val) { m_hasDefinition = val; }
     cDeclNode* GetType() override { return m_returnType; }
-    cSymbol* GetName(){return m_name;}
+    //cSymbol* GetName(){return m_name;}
+    virtual std::string GetName() {return m_name->GetName();}
     void SetName(cSymbol* name) 
     { 
         m_name = name; 

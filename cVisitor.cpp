@@ -24,4 +24,12 @@ void cVisitor::Visit(cStmtsNode *node)        { node->VisitAllChildren(this); }
 void cVisitor::Visit(cSymbol *node)           { node->VisitAllChildren(this); }
 void cVisitor::Visit(cVarDeclNode *node)      { node->VisitAllChildren(this); }
 
+void cVisitor::VisitAllNodes(cAstNode* node)
+{
+    if(node != nullptr)
+    {
+        node->Visit(this);
+    }
+}
+
 

@@ -190,7 +190,7 @@ array_decl: ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
 }
 func_decl:  func_header ';'
             {  
-            cSymbol* sym = g_symbolTable.Find($1->GetName()->GetName());
+            cSymbol* sym = g_symbolTable.Find($1->GetName());
         if (sym != nullptr) {
             cFuncDeclNode* def = dynamic_cast<cFuncDeclNode*>(sym->GetDecl());
             if (def != nullptr && def->HasDefinition()) {

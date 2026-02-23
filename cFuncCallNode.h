@@ -17,4 +17,6 @@ public:
 }
     virtual string NodeType() override { return "funcCall"; }
     virtual void Visit(cVisitor* visitor) override { visitor->Visit(this); }
+    virtual cDeclNode* GetType(){return m_name->GetDecl();};
+
 };

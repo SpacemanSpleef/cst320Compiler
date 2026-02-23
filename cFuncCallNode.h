@@ -18,5 +18,15 @@ public:
     virtual string NodeType() override { return "funcCall"; }
     virtual void Visit(cVisitor* visitor) override { visitor->Visit(this); }
     virtual cDeclNode* GetType(){return m_name->GetDecl();};
-
+    cSymbol* GetSymbol(){return m_name;}
+    int GetNumArgs()
+    {
+        if(GetChild(1) == nullptr)
+            return 0;
+        return GetChild(1)->NumChildren();
+    }
+    cExprNode* GetArg(int i) 
+    {
+        return dynamic_cast<cExprNode*>(GetChild(1)->GetChild(i));
+    }
 };

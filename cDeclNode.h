@@ -31,7 +31,17 @@ class cDeclNode : public cAstNode
         bool IsCompatibleWith(cDeclNode *type) 
         {
             if (this == type) return true;
-            if (this->IsFloat() && type->IsInt()) return true;
+        
+            if (this->IsFloat())
+            {
+                if (type->IsInt() || type->IsChar()) return true;
+            }
+        
+            if (this->IsInt())
+            {
+                if (type->IsChar()) return true;
+            }
+        
             return false;
         }
 };

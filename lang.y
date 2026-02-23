@@ -352,6 +352,16 @@ param:      expr
 
 expr:       expr EQUALS addit
                                 { $$ = new cBinaryExprNode($1, EQUALS, $3); }
+        |   expr NOT_EQUALS addit
+            { $$ = new cBinaryExprNode($1, NOT_EQUALS, $3); }
+         |   expr LE addit
+            { $$ = new cBinaryExprNode($1, LE, $3); }
+         |   expr GE addit
+            { $$ = new cBinaryExprNode($1, GE, $3); }
+         |   expr AND addit
+         { $$ = new cBinaryExprNode($1, AND, $3); }
+         |   expr OR addit
+        { $$ = new cBinaryExprNode($1, OR, $3); }
         |   addit
                             { $$ = $1; }
 
@@ -390,6 +400,10 @@ fact:       '(' expr ')'
                             {  $$ = $1;}
         |   func_call
                             { $$ = dynamic_cast<cExprNode*>($1); }
+        | '-' fact
+        {
+            $$ = new cBinaryExprNode(new cIntExprNode(0), '-', $2);
+        }
 
 %%
 

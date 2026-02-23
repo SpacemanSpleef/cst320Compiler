@@ -10,7 +10,8 @@ protected:
     bool m_hasDefinition = false;
 
 public:
-cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() {
+    cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() 
+    {
     m_returnType = type;
     m_name = name; 
     m_hasDefinition = false;
@@ -37,20 +38,10 @@ cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() {
         g_symbolTable.Insert(name);
         name->SetDecl(this);
     }
-}
+    }
     int GetParamCount() {
-        if (m_params == nullptr) return 0;
-        return m_params->GetParamCount(); 
-    }
-
-    void AddParams(cParamsNode* params) {
-        if (params != nullptr) {
-            for (int i = 0; i < params->NumChildren(); i++) {
-                this->AddChild(params->GetChild(i));
-        }
-    }
-}
-    
+        return GetNumParams(); 
+    }    
    void AddBody(cDeclsNode* decls, cStmtsNode* stmts)
     {
         m_hasDefinition = true;
@@ -65,12 +56,27 @@ cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() {
     virtual void Visit(cVisitor* visitor) override {
     visitor->Visit(this);
 }
+    void AddParams(cParamsNode* params) {
+        m_params = params;
+        if (params != nullptr) {
+            this->AddChild(params);
+        }
+    }
+
+    int GetNumParams() {
+        if (GetChild(2) == nullptr) return 0;
+        return GetChild(2)->NumChildren();
+    }
+
+cDeclNode* GetParam(int i) {
+    // Get the i-th child of the params list (Child 2)
+    return dynamic_cast<cDeclNode*>(GetChild(2)->GetChild(i));
+}    
     virtual bool IsFunc() override {return true;}
     virtual cDeclNode* GetDecl() override {return this;}
     bool HasDefinition() { return m_hasDefinition; }
     void SetHasDefinition(bool val) { m_hasDefinition = val; }
     cDeclNode* GetType() override { return m_returnType; }
-    //cSymbol* GetName(){return m_name;}
     virtual std::string GetName() {return m_name->GetName();}
     void SetName(cSymbol* name) 
     { 

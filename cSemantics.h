@@ -21,7 +21,28 @@ public:
         }
     }
     virtual void Visit(cVarRefNode *node){};
-    virtual void Visit(cFuncCallNode *node){};
+    void Visit(cFuncCallNode *node) 
+    {
+        node->VisitAllChildren(this);
+        cSymbol *sym = node->GetSymbol();
+        cFuncDeclNode *decl = dynamic_cast<cFuncDeclNode*>(sym->GetDecl());
+        if (decl == nullptr) return; 
+        if (!decl->HasDefinition()) {
+            SemanticParseError("Function " + sym->GetName() + " not fully defined");
+        }
+        if (node->GetNumArgs() != decl->GetNumParams()) {
+            SemanticParseError(sym->GetName() + " called with wrong number of arguments");
+            return; 
+        }
+        for (int i = 0; i < node->GetNumArgs(); i++) {
+            cDeclNode *argType = node->GetArg(i)->GetType();
+            cDeclNode *paramType = decl->GetParam(i)->GetType();
+
+            if (!paramType->IsCompatibleWith(argType)) {
+                SemanticParseError("function " + sym->GetName() + " called with incompatible argument");
+            }
+        }
+    }
     void Visit(cIndexNode *node)
     {
         node->VisitAllChildren(this);

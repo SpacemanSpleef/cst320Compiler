@@ -10,9 +10,9 @@ protected:
     bool m_hasDefinition = false;
 
 public:
-    cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() {
+cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() {
     m_returnType = type;
-    m_name = name;
+    m_name = name; 
     m_hasDefinition = false;
 
     this->AddChild(m_returnType->GetSymbol()); 
@@ -23,20 +23,21 @@ public:
         cDeclNode* oldDecl = existing->GetDecl();
         
         if (oldDecl != nullptr && !oldDecl->IsFunc()) {
-                SemanticParseError("Symbol " + name->GetName() + " already defined in current scope");        
-            } 
+            SemanticParseError("Symbol " + name->GetName() + " already defined in current scope");        
+        } 
         else if (oldDecl != nullptr) {
             cFuncDeclNode* oldFunc = dynamic_cast<cFuncDeclNode*>(oldDecl);
             if (oldFunc != nullptr && oldFunc->GetType() != type) {
                 SemanticParseError(name->GetName() + " previously declared with different return type");
             }
+            
+            this->SetName(existing); 
         }
     } else {
         g_symbolTable.Insert(name);
         name->SetDecl(this);
     }
 }
-
     int GetParamCount() {
         if (m_params == nullptr) return 0;
         return m_params->GetParamCount(); 
@@ -50,24 +51,14 @@ public:
     }
 }
     
-    void AddBody(cDeclsNode* decls, cStmtsNode* stmts) 
-    { 
-    cSymbol* sym = g_symbolTable.FindLocal(m_name->GetName());
-    if (sym != nullptr) {
-        cFuncDeclNode* existingDecl = dynamic_cast<cFuncDeclNode*>(sym->GetDecl());
-        if (existingDecl != nullptr && existingDecl->HasDefinition()) {
-            // MATCH THE TEST STRING EXACTLY
-            SemanticParseError(m_name->GetName() + " already has a definition");
-            return;
-        }
-    }
-    m_hasDefinition = true;
-    
-    m_name->SetDecl(this);
+   void AddBody(cDeclsNode* decls, cStmtsNode* stmts)
+    {
+        m_hasDefinition = true;
+        m_name->SetDecl(this); 
 
-    if (decls != nullptr) this->AddChild(decls);
-    if (stmts != nullptr) this->AddChild(stmts);
-    }   
+        if (decls != nullptr) this->AddChild(decls);
+        if (stmts != nullptr) this->AddChild(stmts);
+    }
 
     virtual cSymbol* GetSymbol() override { return m_name; }
     virtual string NodeType() override { return "func"; }

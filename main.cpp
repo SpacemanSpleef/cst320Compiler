@@ -67,10 +67,12 @@ int main(int argc, char **argv)
     result = yyparse();
     if (yyast_root != nullptr)
     {
-        if (result == 0)
+        if (result == 0 && yynerrs == 0)
         {
             std::cout << yyast_root->ToString();
-        } else {
+        } 
+        else 
+        {
             std::cout << yynerrs << " Errors in compile\n";
         }
     }

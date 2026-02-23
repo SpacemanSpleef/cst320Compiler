@@ -5,33 +5,25 @@
 class cArrayDeclNode : public cDeclNode
 {
 public:
-    cArrayDeclNode(cSymbol* typeId, int size, cSymbol* arrayId)
-    : cDeclNode()
+    cArrayDeclNode(cSymbol* typeId, int size, cSymbol* arrayId) : cDeclNode()
     {
         m_size = size;
         m_name = arrayId;
-        
-        // 1. Validate the Base Type (Requirement #2)
-        // typeId comes from the scanner as a TYPE_ID
-        if (typeId == nullptr || typeId->GetDecl() == nullptr) {
+        m_baseType = (typeId != nullptr) ? typeId->GetDecl() : nullptr;
+
+        if (m_baseType == nullptr) {
             SemanticParseError("Symbol " + typeId->GetName() + " not defined");
-            m_baseType = nullptr;
-        } else {
-            m_baseType = typeId->GetDecl();
         }
-    
-        // 2. Check for Duplicate Definition (Requirement #1)
+
         if (g_symbolTable.FindLocal(arrayId->GetName())) {
             SemanticParseError("Symbol " + arrayId->GetName() + " already defined in current scope");
         } else {
-            // 3. Success: Insert and Link (Requirement #10)
             g_symbolTable.Insert(arrayId);
             arrayId->SetDecl(this);
         }
-    
-        // Add children for the XML/Visitor
-        // Note: m_baseType is a cDeclNode, arrayId is a cSymbol
-        if (m_baseType) this->AddChild(m_baseType);
+
+        // Add Children: Type Symbol and Array Name Symbol
+        if (typeId) this->AddChild(typeId);
         this->AddChild(arrayId);
     }
 

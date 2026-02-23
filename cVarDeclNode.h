@@ -24,19 +24,11 @@ cVarDeclNode(cDeclNode* type, cSymbol* sym) : cDeclNode()
     
     cSymbol* local = g_symbolTable.FindLocal(sym->GetName());
     if (local != nullptr) {
-        // ERROR: Variable already exists in this specific block
         SemanticParseError("Symbol " + sym->GetName() + " already defined in current scope");
         m_name = local; 
     } 
     else {
-        cSymbol* global = g_symbolTable.Find(sym->GetName());
-        if (global != nullptr) {
-            // SHADOWING: Create new symbol for the new scope to get a new ID
-            m_name = new cSymbol(sym->GetName());
-        } else {
-            // BRAND NEW: Use the symbol from the lexer
-            m_name = sym;
-        }
+        m_name = sym;
         g_symbolTable.Insert(m_name);
     }
 

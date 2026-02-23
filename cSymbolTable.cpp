@@ -39,16 +39,9 @@ symbolTable_t* cSymbolTable::DecreaseScope()
 
 void cSymbolTable::Insert(cSymbol *sym)
 {
-    symbolTable_t* curScope = tables.top();
+    if (tables.empty()) return;
+        symbolTable_t* curScope = tables.top();
     
-    // IMPORTANT: Use find(), NOT Find(). 
-    // You only care if it exists in THIS specific block.
-    if (curScope->symbols.find(sym->GetName()) != curScope->symbols.end())
-    {
-        SemanticParseError("Symbol " + sym->GetName() + " already defined in current scope");
-        return;
-    }
-
     curScope->symbols[sym->GetName()] = sym;
 }
 

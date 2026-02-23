@@ -19,13 +19,27 @@ class cStructDeclNode : public cDeclNode
 
 
   public:
-        cStructDeclNode(cSymbol* name, cDeclsNode* members)
-        : cDeclNode()
+        cStructDeclNode(cSymbol* name, cDeclsNode* members) : cDeclNode()
     {
         m_name = name;
         m_decls = members;
-        if (m_decls) 
-            AddChild(m_decls);
+
+        // Check for duplicate definition in the current scope
+        if (g_symbolTable.FindLocal(name->GetName())) 
+        {
+            SemanticParseError("Symbol " + name->GetName() + " already defined in current scope");
+        } 
+        else 
+        {
+            // Insert the struct name into the symbol table so it can be used as a type
+            g_symbolTable.Insert(m_name);
+            m_name->SetDecl(this);
+        }
+
+        // Add the children for XML output
+        // Most tests expect the struct name symbol to be a child as well
+        this->AddChild(m_name);
+        if (m_decls) this->AddChild(m_decls);
     }
 
     // Accessors
@@ -39,11 +53,17 @@ class cStructDeclNode : public cDeclNode
         return "";
     }
     cSymbol* Lookup(string name)
+{
+    if (m_decls == nullptr) return nullptr;
+    
+    for (int i = 0; i < m_decls->NumChildren(); i++)
     {
-        if(m_decls == nullptr) 
-            return nullptr;
-        return m_decls->Find(name);
+        cDeclNode* decl = dynamic_cast<cDeclNode*>(m_decls->GetChild(i));
+        if (decl && decl->GetSymbol()->GetName() == name)
+            return decl->GetSymbol();
     }
+    return nullptr;
+}
     virtual string NodeType() override { return "struct_decl"; }
 
     // Traverse children

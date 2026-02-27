@@ -25,7 +25,7 @@ class cBaseTypeNode : public cDeclNode
 
         // return various Is* values
         bool IsFloat() override { return m_name == "float" || m_name == "double"; }
-        bool IsInt()  override { return m_name == "int"; }
+        bool IsInt()  override { return m_name == "int" || m_name == "long";}
         bool IsChar() override { return m_name == "char"; }
         bool IsType() override { return true; }
 
@@ -41,6 +41,19 @@ class cBaseTypeNode : public cDeclNode
             return " name=\"" + m_name + "\" size=\"" + 
                 std::to_string(m_size) +
                 "\" isFloat=\"" + std::to_string(m_isFloat);
+        }
+        bool IsCompatible(cDeclNode *other) 
+        {
+            if (this == other) return true;
+        
+            // Allow all numeric type conversions
+            if ((this->IsFloat() || this->IsInt() || this->IsChar()) &&
+                (other->IsFloat() || other->IsInt() || other->IsChar()))
+            {
+                return true;
+            }
+            
+            return false;
         }
 
         // return size of data item

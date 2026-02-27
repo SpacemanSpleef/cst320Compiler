@@ -17,16 +17,20 @@ public:
 }
     virtual string NodeType() override { return "funcCall"; }
     virtual void Visit(cVisitor* visitor) override { visitor->Visit(this); }
-    virtual cDeclNode* GetType(){return m_name->GetDecl();};
-    cSymbol* GetSymbol(){return m_name;}
-    int GetNumArgs()
+    virtual cDeclNode* GetType() 
     {
-        if(GetChild(1) == nullptr)
-            return 0;
-        return GetChild(1)->NumChildren();
+    cFuncDeclNode* func = dynamic_cast<cFuncDeclNode*>(m_name->GetDecl());
+    if (func != nullptr) return func->GetReturnType();
+    return nullptr;
     }
+    cSymbol* GetSymbol(){return m_name;}
+    int GetNumArgs() 
+    {
+    return NumChildren() - 1;
+    }
+
     cExprNode* GetArg(int i) 
     {
-        return dynamic_cast<cExprNode*>(GetChild(1)->GetChild(i));
+    return dynamic_cast<cExprNode*>(GetChild(i + 1));
     }
 };

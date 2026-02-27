@@ -74,8 +74,6 @@ int main(int argc, char **argv)
     }
 #endif
 
-    g_symbolTable.InitRootTable();
-
     result = yyparse();
     if (yyast_root != nullptr && result==0)
     {

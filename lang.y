@@ -126,6 +126,7 @@
 %type <expr_node> addit
 %type <expr_node> term
 %type <expr_node> fact
+%type <expr_node> and_expr rel_expr
 %type <var_ref> varref
 %type <symbol> varpart
 
@@ -341,29 +342,31 @@ lval:     varref
                                 { $$ = $1; }
 
 params:   params ',' param
-                                { $$ = $1;
+                                { 
+                                    $$ = $1;
                                     $$->AddParam($3);
                                  }
         |   param
-                            { $$ = new cParamsNode($1); }
+                            { 
+                            $$ = new cParamsNode($1); 
+                            }
 
 param:      expr
                                 { $$ = $1; }
 
-expr:       expr EQUALS addit
-                                { $$ = new cBinaryExprNode($1, EQUALS, $3); }
-        |   expr NOT_EQUALS addit
-            { $$ = new cBinaryExprNode($1, NOT_EQUALS, $3); }
-         |   expr LE addit
-            { $$ = new cBinaryExprNode($1, LE, $3); }
-         |   expr GE addit
-            { $$ = new cBinaryExprNode($1, GE, $3); }
-         |   expr AND addit
-         { $$ = new cBinaryExprNode($1, AND, $3); }
-         |   expr OR addit
-        { $$ = new cBinaryExprNode($1, OR, $3); }
-        |   addit
-                            { $$ = $1; }
+expr:       expr OR and_expr        { $$ = new cBinaryExprNode($1, OR, $3); }
+        |   and_expr                { $$ = $1; }
+
+and_expr:   and_expr AND rel_expr   { $$ = new cBinaryExprNode($1, AND, $3); }
+        |   rel_expr                { $$ = $1; }
+
+rel_expr:   rel_expr EQUALS addit       { $$ = new cBinaryExprNode($1, EQUALS, $3); }
+        |   rel_expr NOT_EQUALS addit   { $$ = new cBinaryExprNode($1, NOT_EQUALS, $3); }
+        |   rel_expr LE addit           { $$ = new cBinaryExprNode($1, LE, $3); }
+        |   rel_expr GE addit           { $$ = new cBinaryExprNode($1, GE, $3); }
+        |   rel_expr '<' addit          { $$ = new cBinaryExprNode($1, '<', $3); }
+        |   rel_expr '>' addit          { $$ = new cBinaryExprNode($1, '>', $3); }
+        |   addit                       { $$ = $1; }
 
 addit:      addit '+' term
                                 { 

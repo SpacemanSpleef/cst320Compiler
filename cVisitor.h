@@ -23,6 +23,20 @@ class cStmtNode;
 class cStmtsNode;
 class cSymbol;
 class cVarDeclNode;
+class cAssignmentNode;
+class cBinaryExprNode;
+class cFuncCallNode;
+class cFuncDeclNode;
+class cVarRefNode;
+class cIndexNode;
+class cReturnNode;
+class cIfStmtNode;
+class cWhileNode;
+class cFloatExprNode;
+class cArrayDeclNode; 
+class cStructDeclNode;
+class cParamsNode;
+class cPrintsNode;
 
 class cVisitor
 {
@@ -44,4 +58,18 @@ class cVisitor
         virtual void Visit(cStmtsNode *node);
         virtual void Visit(cSymbol *node);
         virtual void Visit(cVarDeclNode* node);
+        virtual void Visit(cAssignmentNode *node);
+        virtual void Visit(cBinaryExprNode *node);
+        virtual void Visit(cFuncCallNode *node);
+        virtual void Visit(cFuncDeclNode *node);
+        virtual void Visit(cVarRefNode *node);
+        virtual void Visit(cIndexNode *node);
+        virtual void Visit(cReturnNode *node);
+        virtual void Visit(cIfStmtNode *node);
+        virtual void Visit(cWhileNode *node);
+        virtual void Visit(cFloatExprNode *node);
+        virtual void Visit(cArrayDeclNode *node);
+        virtual void Visit(cStructDeclNode *node);
+        virtual void Visit(cParamsNode *node);
+        virtual void Visit(cPrintsNode *node);
 };

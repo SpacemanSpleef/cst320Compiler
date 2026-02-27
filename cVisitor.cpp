@@ -23,6 +23,20 @@ void cVisitor::Visit(cStmtNode *node)         { node->VisitAllChildren(this); }
 void cVisitor::Visit(cStmtsNode *node)        { node->VisitAllChildren(this); }
 void cVisitor::Visit(cSymbol *node)           { node->VisitAllChildren(this); }
 void cVisitor::Visit(cVarDeclNode *node)      { node->VisitAllChildren(this); }
+void cVisitor::Visit(cAssignmentNode *node)  { node->VisitAllChildren(this); }
+void cVisitor::Visit(cBinaryExprNode *node)  { node->VisitAllChildren(this); }
+void cVisitor::Visit(cFuncCallNode *node)    { node->VisitAllChildren(this); }
+void cVisitor::Visit(cFuncDeclNode *node)    { node->VisitAllChildren(this); }
+void cVisitor::Visit(cVarRefNode *node)      { node->VisitAllChildren(this); }
+void cVisitor::Visit(cIndexNode *node)       { node->VisitAllChildren(this); }
+void cVisitor::Visit(cReturnNode *node)      { node->VisitAllChildren(this); }
+void cVisitor::Visit(cIfStmtNode *node)      { node->VisitAllChildren(this); }
+void cVisitor::Visit(cWhileNode *node)       { node->VisitAllChildren(this); }
+void cVisitor::Visit(cFloatExprNode *node)   { node->VisitAllChildren(this); }
+void cVisitor::Visit(cArrayDeclNode *node)   { node->VisitAllChildren(this); }
+void cVisitor::Visit(cStructDeclNode *node)  { node->VisitAllChildren(this); }
+void cVisitor::Visit(cParamsNode *node)      { node->VisitAllChildren(this); }
+void cVisitor::Visit(cPrintsNode *node)      { node->VisitAllChildren(this); }
 
 void cVisitor::VisitAllNodes(cAstNode* node)
 {

@@ -18,4 +18,8 @@ class cExprNode : public cStmtNode
     public:
         cExprNode() : cStmtNode() {}
         virtual cDeclNode* GetType() = 0;
+        virtual void SetType(cDeclNode* type) {m_type = type;}
+
+    protected:
+        cDeclNode* m_type;
 };

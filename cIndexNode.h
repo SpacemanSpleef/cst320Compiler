@@ -29,4 +29,13 @@ class cIndexNode : public cVarRefNode
     }
     virtual string NodeType() override { return "index"; }
     virtual void Visit(cVisitor *visitor) override { visitor->Visit(this); }
+    virtual cDeclNode* GetType() override 
+    {
+        cVarRefNode* base = dynamic_cast<cVarRefNode*>(GetBase());
+        if (base == nullptr) return nullptr;
+        cDeclNode* varType = base->GetSymbol()->GetDecl()->GetType();
+        cArrayDeclNode* arr = dynamic_cast<cArrayDeclNode*>(varType);
+        if (arr != nullptr) return arr->GetType();  // returns element type
+        return nullptr;
+    }
 };

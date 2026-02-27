@@ -7,20 +7,37 @@ class cSemantics : public cVisitor
 public:
     cSemantics() : cVisitor() {}
 
-    virtual void Visit(cAssignmentNode *node)
+    virtual void Visit(cAssignmentNode *node) 
     {
+
         node->VisitAllChildren(this);
-        cDeclNode *lvalType = node->GetLVal()->GetType();
-        cDeclNode *exprType = node->GetExpr()->GetType();
-        if (lvalType != nullptr && exprType != nullptr)
-        {
-            if (!lvalType->IsCompatibleWith(exprType))
-            {
-                SemanticParseError("Cannot assign " + exprType->GetName() + " to " + lvalType->GetName());
-            }
+
+        cExprNode* lval = node->GetLVal();
+        cExprNode* expr = node->GetExpr();
+        if (lval == nullptr || expr == nullptr) return;
+
+        cDeclNode* lvalType = lval->GetType();
+        cDeclNode* exprType = expr->GetType();
+        if (lvalType == nullptr || exprType == nullptr) return;
+
+        lvalType = lvalType->GetType();
+        exprType = exprType->GetType();
+        if (lvalType == nullptr || exprType == nullptr) return;
+
+        if (!lvalType->IsCompatibleWith(exprType)) {
+            node->SemanticError("Cannot assign " + exprType->GetName() + 
+                                " to " + lvalType->GetName());
         }
     }
-    virtual void Visit(cVarRefNode *node){};
+    virtual void Visit(cVarRefNode *node) {
+    if (node->GetSymbol() == nullptr) return;
+    cDeclNode* decl = node->GetSymbol()->GetDecl();
+    if (decl == nullptr) return;
+    if (decl->IsFunc()) {
+        node->SemanticError("Symbol " + node->GetSymbol()->GetName() + 
+                           " is a function, not a variable");
+    }
+}
     void Visit(cFuncCallNode *node) 
     {
         node->VisitAllChildren(this);
@@ -28,10 +45,10 @@ public:
         cFuncDeclNode *decl = dynamic_cast<cFuncDeclNode*>(sym->GetDecl());
         if (decl == nullptr) return; 
         if (!decl->HasDefinition()) {
-            SemanticParseError("Function " + sym->GetName() + " not fully defined");
+            node->SemanticError("Function " + sym->GetName() + " is not fully defined");
         }
         if (node->GetNumArgs() != decl->GetNumParams()) {
-            SemanticParseError(sym->GetName() + " called with wrong number of arguments");
+            node->SemanticError(sym->GetName() + " called with wrong number of arguments");
             return; 
         }
         for (int i = 0; i < node->GetNumArgs(); i++) {
@@ -39,23 +56,33 @@ public:
             cDeclNode *paramType = decl->GetParam(i)->GetType();
 
             if (!paramType->IsCompatibleWith(argType)) {
-                SemanticParseError("function " + sym->GetName() + " called with incompatible argument");
+                node->SemanticError(sym->GetName() + " called with incompatible argument");
             }
         }
     }
-    void Visit(cIndexNode *node)
+    void Visit(cIndexNode *node) 
     {
         node->VisitAllChildren(this);
 
-        cDeclNode* baseType = node->GetBase()->GetType();
-        if (baseType != nullptr && !baseType->IsArray())
-        {
-            SemanticParseError(node->GetBaseName() + " is not an array");
+        cVarRefNode* base = dynamic_cast<cVarRefNode*>(node->GetBase());
+        if (base == nullptr || base->GetSymbol() == nullptr) return;
+
+        cDeclNode* varDecl = base->GetSymbol()->GetDecl();
+        cDeclNode* varType = varDecl->GetType();  
+
+        if (varType == nullptr || !varType->IsArray()) {
+            node->SemanticError(node->GetBaseName() + " is not an array");
+            return;
         }
+
         cDeclNode* indexType = node->GetIndex()->GetType();
-        if (indexType != nullptr && !indexType->IsInt())
-        {
-            SemanticParseError("Index of " + node->GetBaseName() + " is not an int");
+        if (indexType != nullptr && !indexType->IsInt() && !indexType->IsChar()) {
+            node->SemanticError("Index of " + node->GetBaseName() + " is not an int");
         }
     }
+    void Visit(cBinaryExprNode *node) 
+    {
+        node->VisitAllChildren(this);
+ 
+    }   
 };

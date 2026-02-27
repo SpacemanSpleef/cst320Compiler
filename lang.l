@@ -57,9 +57,24 @@ array                       DO_RETURN(ARRAY);
 ">="        DO_RETURN(GE);
 "&&"        DO_RETURN(AND);
 "||"        DO_RETURN(OR);
+"["         {DO_RETURN('[');}
+"]"         {DO_RETURN(']');}
 
-[{};()*+/%="."-]                 DO_RETURN(yytext[0]);
-
+"{" |
+"}" |
+";" |
+"(" |
+")" |
+"*" |
+"+" |
+"/" |
+"%" |
+"=" |
+"." |
+"-" |
+"," |
+"<" |
+">"                 { DO_RETURN(yytext[0]); }
 %%
 
 // This function allows us to do extra processing on each token
@@ -81,7 +96,7 @@ int ProcessIdentifier(int type)
     else 
     {       
         cDeclNode* decl = sym->GetDecl(); 
-        if (decl != nullptr && (decl->IsType() || decl->IsStruct())) 
+        if (decl != nullptr && (decl->IsType() || decl->IsStruct() || decl->IsArray())) 
         {
             type = TYPE_ID;
         }

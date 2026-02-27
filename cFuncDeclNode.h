@@ -63,21 +63,26 @@ public:
         }
     }
 
-    int GetNumParams() {
-        if (GetChild(2) == nullptr) return 0;
-        return GetChild(2)->NumChildren();
+    int GetNumParams() 
+    {
+    if (m_params == nullptr) 
+        return 0;
+    return m_params->NumChildren();
     }
 
-cDeclNode* GetParam(int i) {
-    // Get the i-th child of the params list (Child 2)
-    return dynamic_cast<cDeclNode*>(GetChild(2)->GetChild(i));
-}    
+    cDeclNode* GetParam(int i) 
+    {
+    if (m_params == nullptr) 
+        return nullptr;
+    return dynamic_cast<cDeclNode*>(m_params->GetChild(i));
+    }
     virtual bool IsFunc() override {return true;}
     virtual cDeclNode* GetDecl() override {return this;}
     bool HasDefinition() { return m_hasDefinition; }
     void SetHasDefinition(bool val) { m_hasDefinition = val; }
     cDeclNode* GetType() override { return m_returnType; }
     virtual std::string GetName() {return m_name->GetName();}
+    cDeclNode* GetReturnType() { return m_returnType; }
     void SetName(cSymbol* name) 
     { 
         m_name = name; 

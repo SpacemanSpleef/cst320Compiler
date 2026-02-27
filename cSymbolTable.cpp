@@ -7,6 +7,7 @@ cSymbolTable::cSymbolTable()
     // Global scope for base types
     symbolTable_t* globalScope = new symbolTable_t();
     tables.push(globalScope);
+    InitRootTable();
 }
 symbolTable_t* cSymbolTable::IncreaseScope()
 {
@@ -77,7 +78,7 @@ void cSymbolTable::InitRootTable()
         bool isFloat = (baseTypes[i] == "float" || baseTypes[i] == "double");
         cDeclNode* typeDecl = new cBaseTypeNode(sym, sizes[i], isFloat);
         
-        sym->SetDecl(typeDecl); // Linked via pointer now, not a bool
+        sym->SetDecl(typeDecl);
         globalScope->symbols.insert({baseTypes[i], sym});
     }
 }

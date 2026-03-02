@@ -45,5 +45,3 @@ void cVisitor::VisitAllNodes(cAstNode* node)
         node->Visit(this);
     }
 }
-
-

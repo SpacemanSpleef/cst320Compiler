@@ -41,4 +41,16 @@ class cDeclsNode : public cAstNode
             }
             return nullptr;
         }
+        int GetSize() { return m_size; }
+        void SetSize(int size) { m_size = size; }
+        
+        virtual string AttributesToString() override 
+        {
+            if (m_size == 0) return "";
+            return " size=\"" + std::to_string(m_size) + "\"";
+        }
+        
+    protected:
+        int m_size;
+
 };

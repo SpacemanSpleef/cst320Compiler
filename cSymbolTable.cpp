@@ -11,7 +11,7 @@ cSymbolTable::cSymbolTable()
 }
 symbolTable_t* cSymbolTable::IncreaseScope()
 {
-    symbolTable_t* newScope = new symbolTable_t(); // fresh empty scope
+    symbolTable_t* newScope = new symbolTable_t();
     tables.push(newScope);
     return newScope;
 }
@@ -27,21 +27,23 @@ symbolTable_t* cSymbolTable::DecreaseScope()
 void cSymbolTable::Insert(cSymbol *sym)
 {
     if (tables.empty()) return;
-        symbolTable_t* curScope = tables.top();
-    
+    symbolTable_t* curScope = tables.top();
+        
     curScope->symbols[sym->GetName()] = sym;
 }
 
 cSymbol* cSymbolTable::FindLocal(string name)
 {
-    // Only check top-most program scope
     symbolTable_t* curScope = tables.top();
     auto it = curScope->symbols.find(name);
-    if (it != curScope->symbols.end())
+    
+    
+    if (it != curScope->symbols.end()) {
         return it->second;
+    }
+    
     return nullptr;
 }
-
 cSymbol* cSymbolTable::Find(string name)
 {
     // searches top -> bottom

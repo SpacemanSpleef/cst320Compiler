@@ -87,20 +87,18 @@ int Return(int val)
 
 int ProcessIdentifier(int type)
 {
-    cSymbol *sym = g_symbolTable.Find(yytext);
+    cSymbol *existingSym = g_symbolTable.Find(yytext);
     
-    if (sym == nullptr) 
-    {
-        sym = new cSymbol(yytext);
-    } 
-    else 
+    if (existingSym != nullptr) 
     {       
-        cDeclNode* decl = sym->GetDecl(); 
+        cDeclNode* decl = existingSym->GetDecl(); 
         if (decl != nullptr && (decl->IsType() || decl->IsStruct() || decl->IsArray())) 
         {
-            type = TYPE_ID;
+            yylval.symbol = existingSym;
+            return TYPE_ID;
         }
     }
-    yylval.symbol = sym;
-    return type;
+    
+    yylval.symbol = new cSymbol(yytext);
+    return IDENTIFIER;
 }

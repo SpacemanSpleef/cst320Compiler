@@ -13,8 +13,14 @@
 
 class cDeclNode : public cAstNode
 {
+    protected:
+        int m_size;
+        int m_offset;
     public:
-        cDeclNode() : cAstNode() {}
+        cDeclNode() : cAstNode(), m_size(0), m_offset(0) {}
+        void SetSize(int size) { m_size = size; }
+        void SetOffset(int offset) { m_offset = offset; }
+        int GetOffset() { return m_offset; }
         virtual cSymbol* GetSymbol() = 0;
         virtual bool IsArray()  { return false; }
         virtual bool IsStruct() { return false; }
@@ -24,7 +30,7 @@ class cDeclNode : public cAstNode
         virtual bool IsFloat()  { return false; }
         virtual bool IsInt()    { return false; }
         virtual bool IsChar()   { return false; }
-        virtual int  GetSize()  { return 0; }
+        virtual int  GetSize()  { return m_size; }
         virtual cDeclNode *GetType() = 0;
         virtual cDeclNode* GetDecl() = 0;
         virtual std::string GetName() = 0;
@@ -52,5 +58,11 @@ class cDeclNode : public cAstNode
             }
         
             return false;
+        }
+        virtual string AttributesToString() override 
+        {
+            if (m_size == 0 && m_offset == 0) return "";
+            return " size=\"" + std::to_string(m_size) + 
+                   "\" offset=\"" + std::to_string(m_offset) + "\"";
         }
     };

@@ -7,7 +7,7 @@ class cArrayDeclNode : public cDeclNode
 public:
     cArrayDeclNode(cSymbol* typeId, int size, cSymbol* arrayId) : cDeclNode()
     {
-        m_size = size;
+        m_length = size;  // Changed from m_size to m_length
         m_name = arrayId;
         m_baseType = (typeId != nullptr) ? typeId->GetDecl() : nullptr;
 
@@ -36,17 +36,16 @@ public:
         if (m_baseType && m_baseType->GetSymbol())
             elementType = m_baseType->GetSymbol()->GetName();
 
-        return " name=\"" + m_name->GetName() + "\"" +
-               " size=\"" + std::to_string(m_size) + "\"" +
-               " element_type=\"" + elementType + "\"";
+        // Get size/offset from parent class, then add array-specific attributes
+        string result = cDeclNode::AttributesToString();
+        result += " name=\"" + m_name->GetName() + "\"" +
+                  " length=\"" + std::to_string(m_length) + "\"" +
+                  " element_type=\"" + elementType + "\"";
+        return result;
     }
 
     virtual bool IsArray() override { return true; }
-
-    // A declaration returns itself
     virtual cDeclNode* GetDecl() override { return this; }
-
-    // Type of the array is the type of its elements
     virtual cDeclNode* GetType() override
     {
         return m_baseType ? m_baseType->GetDecl() : nullptr;
@@ -54,10 +53,11 @@ public:
 
     cSymbol* GetSymbol() { return m_name; }
     cDeclNode* GetBaseType() { return m_baseType; }
-    int GetSize() { return m_size; }
+    int GetArraySize() { return m_length; }  // Renamed from GetSize
     virtual std::string GetName() {return m_name->GetName();}
+    
 protected:
-    cDeclNode* m_baseType; // Symbol for element type
-    int m_size;          // Array length
-    cSymbol* m_name;     // Symbol representing array
+    cDeclNode* m_baseType;
+    int m_length;
+    cSymbol* m_name;
 };

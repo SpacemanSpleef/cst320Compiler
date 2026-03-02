@@ -18,13 +18,13 @@
 #include "lex.h"
 #include "astnodes.h"
 #include "langparse.h"
-//#include "cComputeSize.h"
+#include "cComputeSize.h"
 #include "cSemantics.h"
 //#include "cCodeGen.h"
 #include "cSymbol.h"
 
-#define LAB5B
-//#define LAB6
+//#define LAB5B
+#define LAB6
 //#define LAB7
 
 // define global variables

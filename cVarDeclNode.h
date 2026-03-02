@@ -36,20 +36,14 @@ cVarDeclNode(cDeclNode* type, cSymbol* sym) : cDeclNode()
     this->AddChild(m_type->GetSymbol()); 
     this->AddChild(m_name);
 }
-
-//cSymbol* GetType() { return m_type; }
-    //cSymbol* GetName() { return m_name; }
     virtual std::string GetName() override {return m_name->GetName();}
 
-    // Return attributes for XML output
+    virtual string NodeType() override { return "var_decl"; }
     virtual string AttributesToString() override
     {
-        // No attributes of the var_decl node itself; type and name are children
-        return "";
+        string result = cDeclNode::AttributesToString();
+        return result;
     }
-
-    virtual string NodeType() override { return "var_decl"; }
-
     // Traverse children
     virtual void Visit(cVisitor *visitor) override {visitor->Visit(this);}    
     virtual cSymbol* GetSymbol() override { return m_name; }

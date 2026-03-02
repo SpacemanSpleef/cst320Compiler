@@ -72,4 +72,5 @@ class cVisitor
         virtual void Visit(cStructDeclNode *node);
         virtual void Visit(cParamsNode *node);
         virtual void Visit(cPrintsNode *node);
+        int Align(int offset, int size);
 };

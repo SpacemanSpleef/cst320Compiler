@@ -13,6 +13,10 @@ public:
 
         if (m_baseType == nullptr) {
             SemanticParseError("Symbol " + typeId->GetName() + " not defined");
+            m_ArraySize = 0;
+        } else
+        {
+            m_ArraySize = m_baseType->GetSize() * m_length;
         }
 
         if (g_symbolTable.FindLocal(arrayId->GetName())) {
@@ -32,17 +36,9 @@ public:
 
     virtual string AttributesToString() override
     {
-        std::string elementType = "unknown";
-        if (m_baseType && m_baseType->GetSymbol())
-            elementType = m_baseType->GetSymbol()->GetName();
-
-        // Get size/offset from parent class, then add array-specific attributes
-        string result = cDeclNode::AttributesToString();
-        result += " name=\"" + m_name->GetName() + "\"" +
-                  " length=\"" + std::to_string(m_length) + "\"" +
-                  " element_type=\"" + elementType + "\"";
-        return result;
+        return " count=\"" + std::to_string(m_length) + "\"";
     }
+
 
     virtual bool IsArray() override { return true; }
     virtual cDeclNode* GetDecl() override { return this; }
@@ -53,11 +49,16 @@ public:
 
     cSymbol* GetSymbol() { return m_name; }
     cDeclNode* GetBaseType() { return m_baseType; }
-    int GetArraySize() { return m_length; }  // Renamed from GetSize
-    virtual std::string GetName() {return m_name->GetName();}
-    
+    int GetArraySize() { return m_length; } 
+    virtual std::string GetName() {return m_name->GetName();}    
+    virtual int GetSize() override 
+    { 
+        return m_ArraySize;
+    }
+
 protected:
     cDeclNode* m_baseType;
     int m_length;
     cSymbol* m_name;
+    int m_ArraySize;
 };

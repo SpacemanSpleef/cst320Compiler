@@ -268,7 +268,7 @@ paramsspec:  paramsspec ',' paramspec
                                 }
         |   paramspec
                             { 
-                                $$ = new cParamsNode($1);
+                                $$ = new cParamsNode($1, true);
                             }
 
 paramspec: TYPE_ID IDENTIFIER
@@ -327,14 +327,19 @@ func_call:  IDENTIFIER '(' params ')'
                              }
 
 varref:   varref '.' varpart
-                                {
-                                    $$ = $1;
-                                    $$->AddMember($3);
-                                }
+            {
+                $$ = $1;
+                $$->AddMember($3);
+            }
         | varref '[' expr ']'
-                            { $$ = new cIndexNode($1, $3); }
+            {
+                $$ = $1;
+                $1->AddChild($3);  // Add index as child to varref, don't create cIndexNode
+            }
         | varpart
-                            { $$ = new cVarRefNode($1); }
+            {
+                $$ = new cVarRefNode($1);
+            }
 
 varpart:  IDENTIFIER
                                 { $$ = $1;  }

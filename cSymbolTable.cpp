@@ -27,8 +27,10 @@ symbolTable_t* cSymbolTable::DecreaseScope()
 void cSymbolTable::Insert(cSymbol *sym)
 {
     if (tables.empty()) return;
+    
+    sym->AssignId();
+    
     symbolTable_t* curScope = tables.top();
-        
     curScope->symbols[sym->GetName()] = sym;
 }
 
@@ -70,7 +72,6 @@ cSymbol* cSymbolTable::Find(string name)
 
 void cSymbolTable::InitRootTable()
 {
-    symbolTable_t* globalScope = tables.top();
     std::string baseTypes[] = {"char", "int", "float", "long", "double"};
     int sizes[] = {1, 4, 4, 8, 8};
 
@@ -81,6 +82,6 @@ void cSymbolTable::InitRootTable()
         cDeclNode* typeDecl = new cBaseTypeNode(sym, sizes[i], isFloat);
         
         sym->SetDecl(typeDecl);
-        globalScope->symbols.insert({baseTypes[i], sym});
+        Insert(sym);
     }
 }

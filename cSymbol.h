@@ -20,7 +20,7 @@ class cSymbol : public cAstNode
         // param is name of symbol
         cSymbol(string name) : cAstNode()
         {
-            m_id = ++nextId;        // get next available ID
+            m_id = 0;  // Don't assign ID yet!
             m_name = name;
             m_decl = nullptr;
         }
@@ -40,6 +40,13 @@ class cSymbol : public cAstNode
         void SetIsType(bool t){ isType = t; }
         bool IsType() const {return isType;}
         virtual std::string GetName() {return m_name;}
+        void AssignId()
+        {
+            if(m_id == 0)
+            {
+                m_id = ++nextId;
+            }
+        }
     protected:
         static long long nextId;        // Next avail symbol ID
         long long m_id;                 // Unique ID for this symbol

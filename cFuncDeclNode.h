@@ -12,36 +12,23 @@ protected:
 public:
     cFuncDeclNode(cDeclNode* type, cSymbol* name) : cDeclNode() 
     {
-    m_returnType = type;
-    m_name = name; 
-    m_hasDefinition = false;
+        m_returnType = type;
+        m_name = name; 
+        m_hasDefinition = false;
 
-    this->AddChild(m_returnType->GetSymbol()); 
-    this->AddChild(m_name);
+        this->AddChild(m_returnType->GetSymbol()); 
+        this->AddChild(m_name);
 
-    cSymbol* existing = g_symbolTable.FindLocal(name->GetName());
-    if (existing != nullptr) {
-        cDeclNode* oldDecl = existing->GetDecl();
-        
-        if (oldDecl != nullptr && !oldDecl->IsFunc()) {
-            SemanticParseError("Symbol " + name->GetName() + " already defined in current scope");        
-        } 
-        else if (oldDecl != nullptr) {
-            cFuncDeclNode* oldFunc = dynamic_cast<cFuncDeclNode*>(oldDecl);
-            if (oldFunc != nullptr && oldFunc->GetType() != type) {
-                SemanticParseError(name->GetName() + " previously declared with different return type");
-            }
-            
-            this->SetName(existing); 
-        }
-    } else {
-        g_symbolTable.Insert(name);
         name->SetDecl(this);
     }
-    }
-    int GetParamCount() {
+    int GetParamCount() 
+    {
         return GetNumParams(); 
     }    
+    cParamsNode* GetParams() 
+    { 
+        return m_params; 
+    }
    void AddBody(cDeclsNode* decls, cStmtsNode* stmts)
     {
         m_hasDefinition = true;
@@ -54,8 +41,8 @@ public:
     virtual cSymbol* GetSymbol() override { return m_name; }
     virtual string NodeType() override { return "func"; }
     virtual void Visit(cVisitor* visitor) override {
-    visitor->Visit(this);
-}
+    visitor->Visit(this);}
+
     void AddParams(cParamsNode* params) {
         m_params = params;
         if (params != nullptr) {

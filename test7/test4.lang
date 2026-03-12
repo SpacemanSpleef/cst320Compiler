@@ -1,0 +1,9 @@
+//Testing expresions
+program 
+{
+    int x;
+    int y;
+    x = 2 + 3;
+    y = x * 2;
+    print(y);
+}

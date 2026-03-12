@@ -43,6 +43,9 @@ class cIntExprNode : public cExprNode
 
             return tempSym->GetDecl();
         }
+        int GetValue() { return m_value; }
+
+
         
     protected:
         int m_value;        // value of integer constant (literal)

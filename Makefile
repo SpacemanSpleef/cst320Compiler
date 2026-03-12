@@ -14,7 +14,8 @@ OBJS=main.o \
 	 langlex.o \
 	 langparse.o \
 	 cVisitor.o \
-	 cSymbolTable.o
+	 cSymbolTable.o \
+	 emit.o
 
 all: lang
 
@@ -28,7 +29,9 @@ clean:
 	rm -f langlex.c
 	rm -f langparse.c
 	rm -f langparse.h
-
+	rm -f out
+	rm -f langout.*
+	rm -f langout
 
 .c.o:
 	g++ $(COPTS) $? -o $@
@@ -47,6 +50,9 @@ langparse.c: lang.y
 
 langlex.o: langlex.c
 	g++ $(COPTS) -Wno-sign-compare $? -o $@
+
+emit.o: emit.cpp emit.h
+	g++ $(COPTS) emit.cpp -o emit.o
 
 lang: $(OBJS)
 	g++ $(OBJS) -o lang

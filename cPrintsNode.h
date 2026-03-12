@@ -32,6 +32,7 @@ class cPrintsNode : public cStmtNode
         }
         virtual string NodeType() { return string("prints"); }
         virtual void Visit(cVisitor *visitor) { visitor->Visit(this); }
+        virtual string GetString(){return m_value;}
     protected:
         string m_value;        // value of integer constant (literal)
 };

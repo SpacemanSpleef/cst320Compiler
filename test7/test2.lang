@@ -1,0 +1,6 @@
+//Test the printing of strings
+program
+{
+    prints("Hello World");
+    prints("2");
+}

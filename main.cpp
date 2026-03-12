@@ -20,12 +20,12 @@
 #include "langparse.h"
 #include "cComputeSize.h"
 #include "cSemantics.h"
-//#include "cCodeGen.h"
+#include "cCodeGen.h"
 #include "cSymbol.h"
 
 //#define LAB5B
-#define LAB6
-//#define LAB7
+//#define LAB6
+#define LAB7
 
 // define global variables
 long long cSymbol::nextId;

@@ -26,7 +26,6 @@ public:
             arrayId->SetDecl(this);
         }
 
-        // Add Children: Type Symbol and Array Name Symbol
         if (typeId) this->AddChild(typeId);
         this->AddChild(arrayId);
     }

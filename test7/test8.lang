@@ -1,0 +1,13 @@
+//Test Stacked blocks
+program 
+{
+    int i;
+    i = 0;
+    print(i);
+    {
+        i = 5;
+        print(i);
+        i = i + 1;
+    }
+    print(i);
+}

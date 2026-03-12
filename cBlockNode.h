@@ -21,9 +21,7 @@
 class cBlockNode : public cStmtNode
 {
     public:
-        // params are the decls and statements contained in the block
-        cBlockNode(cDeclsNode *decls, cStmtsNode *statements)
-            : cStmtNode()
+        cBlockNode(cDeclsNode *decls, cStmtsNode *statements): cStmtNode()
         {
             AddChild(decls);
             AddChild(statements);

@@ -1,0 +1,7 @@
+//Test Stacked blocks
+program 
+{
+    int i[5];
+    i[0] = 3;
+    print(i[0]);
+}

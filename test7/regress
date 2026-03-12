@@ -1,5 +1,5 @@
 #!/bin/bash
-for test in {1..7}; do
+for test in {1..8}; do
     test7/runc test$test
 done
 

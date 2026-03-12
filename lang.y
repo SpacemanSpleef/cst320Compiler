@@ -184,8 +184,6 @@ struct_decl:  STRUCT open decls close IDENTIFIER
 }
 array_decl: ARRAY TYPE_ID '[' INT_VAL ']' IDENTIFIER
 {
-    // Pass the symbols directly. The constructor now handles 
-    // Find(), FindLocal(), and Insert().
     $$ = new cArrayDeclNode($2, $4, $6);
     PROP_ERROR();
 }
@@ -331,7 +329,7 @@ varref:   varref '.' varpart
         | varref '[' expr ']'
             {
                 $$ = $1;
-                $1->AddChild($3);  // Add index as child to varref, don't create cIndexNode
+                $1->AddChild($3); 
             }
         | varpart
             {

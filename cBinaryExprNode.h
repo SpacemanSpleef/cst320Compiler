@@ -18,7 +18,6 @@
 class cBinaryExprNode : public cExprNode
 {
     public:
-        // param is the value of the integer constant
         cBinaryExprNode(cExprNode* lhs, int op, cExprNode* rhs) : cExprNode()
         {
             AddChild(lhs);

@@ -1,6 +1,0 @@
-<program><block><stmts><print><int value="1" /></print>
-<print><int value="2" /></print>
-</stmts>
-</block>
-</program>
-

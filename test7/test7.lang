@@ -1,0 +1,6 @@
+//Test Functions
+program 
+{
+    int RandNum(int x);
+    print(RandNum(5));
+}

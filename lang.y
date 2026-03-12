@@ -240,15 +240,12 @@ func_prefix: TYPE_ID IDENTIFIER '('
     cSymbol* typeSym = $1;
     cDeclNode* retType = typeSym->GetDecl();
 
-    // 1. Check if the function name is already known in the global scope
     cSymbol* existing = g_symbolTable.FindLocal($2->GetName());
     
-    // 2. Always create a NEW AST node for this specific line of code
     cFuncDeclNode* funcDecl = new cFuncDeclNode(retType, $2); 
 
     if (!existing)
     {
-        // First time seeing this function name
         g_symbolTable.Insert($2);
         $2->SetDecl(funcDecl);
     }

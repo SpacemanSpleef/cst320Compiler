@@ -14,7 +14,6 @@
 class cAssignmentNode : public cStmtNode
 {
     public:
-        // param is first stmt in the list of statements
         cAssignmentNode(cAstNode* lval, cExprNode* expr) : cStmtNode()
         {
             AddChild(lval);

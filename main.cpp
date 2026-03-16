@@ -38,7 +38,6 @@ int main(int argc, char **argv)
 
     const char *outfile_name;
     int result = 0;
-    //std::streambuf *cout_buf = std::cout.rdbuf();
 
     if (argc > 1)
     {

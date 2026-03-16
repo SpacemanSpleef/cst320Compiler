@@ -31,25 +31,16 @@ class cStructDeclNode : public cDeclNode
         } 
         else 
         {
-            // Insert the struct name into the symbol table so it can be used as a type
             g_symbolTable.Insert(m_name);
             m_name->SetDecl(this);
         }
-
-        // Add the children for XML output
-        // Most tests expect the struct name symbol to be a child as well
         this->AddChild(m_name);
         if (m_decls) this->AddChild(m_decls);
     }
 
-    // Accessors
-    //cSymbol* GetType() { return m_type; }
-    //cSymbol* GetName() { return m_name; }
-
     // Return attributes for XML output
     virtual string AttributesToString() override
     {
-        // No attributes of the var_decl node itself; type and name are children
         return "";
     }
     cSymbol* Lookup(string name)

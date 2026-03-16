@@ -20,7 +20,7 @@ class cSymbol : public cAstNode
         // param is name of symbol
         cSymbol(string name) : cAstNode()
         {
-            m_id = 0;  // Don't assign ID yet!
+            m_id = 0; 
             m_name = name;
             m_decl = nullptr;
         }

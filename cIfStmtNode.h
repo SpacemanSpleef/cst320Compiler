@@ -14,7 +14,6 @@
 class cIfStmtNode : public cStmtNode
 {
     public:
-        // param is first stmt in the list of statements
         cIfStmtNode(cExprNode *expr, cStmtsNode* stmts) : cStmtNode()
         {
             AddChild(expr);
